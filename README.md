@@ -139,8 +139,9 @@ TODO: faut-il faire un dessin ?
     * `toml`
     * `anyhow`
     * `tracing`
-    * `[pixels](https://crates.io/crates/pixels)`, `[egui](https://github.com/emilk/egui)`
-      ou `[druid](https://github.com/linebender/druid)` si vous envisagez de faire un mode graphique.
+    * `[pixels](https://crates.io/crates/pixels)`, `[egui](https://github.com/emilk/egui)`, `[druid](https://github.com/linebender/druid)`
+      ou `[piston](https://github.com/pistondevelopers/piston)[[exemples](https://github.com/pistondevelopers/piston-examples)] si vous envisagez de faire un mode
+      graphique.
 
   Pour tout autre package, vous devrez demander un accord préalable.
 
@@ -150,6 +151,8 @@ Le jour de la soutenance orale, vous serez évalués sur:
 * La fiabilité et le respect du protocole entre client et serveur
 * Le respect des idiomes Rust (dont la gestion des erreurs)
 * L'organisation et la lisibilité du code
+* Je veux tous les commits (depuis le premier qui est le clone de ce dépôt) avec l’identité de chacun des contributeurs;
+  si vous n’apparaissez pas dans les commits de code, vous serez considérés avec un Malus
 * Il y aura une note collective et une note individuelle.
 * La doc Markdown doit mettre en évidence
     * Votre organisation du travail en tant qu'équipe
