@@ -78,11 +78,11 @@ TODO: faut-il faire un dessin ?
 
 ## Votre objectif
 
-* Réaliser un client écrit en Rust sans bibliothèque extérieure autres que celles autorisées.
+* Réaliser un travailleur écrit en Rust sans bibliothèque extérieure autres que celles autorisées.
 
   **C'est la partie principale du projet.**
 
-  Le client *doit* pouvoir être lancé de la manière suivante: `client [server_address]`
+  Le travailleur *doit* pouvoir être lancé de la manière suivante: `worker [server_address]`
 
   où
     * `server_address` représente l'adresse du serveur (nom ou IP).
@@ -93,18 +93,18 @@ TODO: faut-il faire un dessin ?
 
       (vous pouvez ajouter aussi des options complémentaires)
 
-* Réaliser un serveur minimal qui permette de tester un client.
+* Réaliser un serveur minimal qui permette de tester un travailleur.
 
-* Le client doit savoir gérer plusieurs définitions de fractales (en commençant par les ensemble de Julia)
+* Le travailleur doit savoir gérer plusieurs définitions de fractales (en commençant par les ensemble de Julia)
 
-* Le client doit pouvoir effectuer un rendu en local et sauvegarder le résultat dans une image
+* Le travailleur doit pouvoir effectuer un rendu en local et sauvegarder le résultat dans une image
 
-* Il ne doit pas y avoir de duplication de code entre le client et le serveur.
+* Il ne doit pas y avoir de duplication de code entre le travailleur et le serveur.
 
   Vous définirez un "crate" pour:
-    * Le client
+    * Le travailleur
     * Le serveur
-    * Les éléments communs au client et au serveur
+    * Les éléments communs au travailleur et au serveur
     * Les opérations mathématiques sur nombres complexes
 
 ## Les modalités de réalisation
@@ -128,9 +128,9 @@ TODO: faut-il faire un dessin ?
 * La documentation devra être intégrée au dépôt du code et écrite au format Markdown.
 
 * Les seuls modules (*aka* crates) autorisés ici sont:
-    * `[serde](https://crates.io/crates/serde)` et `[serde_json](https://crates.io/crates/serde_json)` pour la
+    * [`serde`](https://crates.io/crates/serde) et [`serde_json`](https://crates.io/crates/serde_json) pour la
       sérilalisation/désérialisation
-    * `[image](https://crates.io/crates/image)` pour l'export d'images
+    * [`image`](https://crates.io/crates/image) pour l'export d'images
 
   et éventuellement si besoin (en rien indispensable):
     * `rand`
@@ -139,8 +139,8 @@ TODO: faut-il faire un dessin ?
     * `toml`
     * `anyhow`
     * `tracing`
-    * `[pixels](https://crates.io/crates/pixels)`, `[egui](https://github.com/emilk/egui)`, `[druid](https://github.com/linebender/druid)`
-      ou `[piston](https://github.com/pistondevelopers/piston)[[exemples](https://github.com/pistondevelopers/piston-examples)] si vous envisagez de faire un mode
+    * [`pixels`](https://crates.io/crates/pixels), [`egui`](https://github.com/emilk/egui), [`druid`](https://github.com/linebender/druid)
+      ou [`piston`](https://github.com/pistondevelopers/piston)[[`exemples`](https://github.com/pistondevelopers/piston-examples)] si vous envisagez de faire un mode
       graphique.
 
   Pour tout autre package, vous devrez demander un accord préalable.
@@ -148,7 +148,7 @@ TODO: faut-il faire un dessin ?
 Le jour de la soutenance orale, vous serez évalués sur:
 
 * Le respect des consignes
-* La fiabilité et le respect du protocole entre client et serveur
+* La fiabilité et le respect du protocole entre travailleur et serveur
 * Le respect des idiomes Rust (dont la gestion des erreurs)
 * L'organisation et la lisibilité du code
 * Je veux tous les commits (depuis le premier qui est le clone de ce dépôt) avec l’identité de chacun des contributeurs;
@@ -160,19 +160,19 @@ Le jour de la soutenance orale, vous serez évalués sur:
     * Les spécificités de votre projet (i.e. ce qui n'est pas déjà dans le sujet)
     * Vos éventuels bonus (parmi la liste présentée ou bien d'autres si validés au préalable par l'enseignant)
 
-      Les bonus ne sont pris en compte uniquement si le client "joueur" est fonctionnel (fonctionnement raisonnablement
-      sans planter dans des situations "normales" de jeu). Le niveau minimal fonctionnel du client et du serveur (en
-      mode test de votre client) défini la note de 10/20.
+      Les bonus ne sont pris en compte uniquement si le travailleur est fonctionnel (fonctionnement raisonnablement
+      sans planter dans des situations "normales" de jeu). Le niveau minimal fonctionnel du travailleur et du serveur (en
+      mode test de votre travailleur) défini la note de 10/20.
 * Vous aurez aussi une modification, un petit développement à faire en live sur votre code pendant la soutenance.
 
 ## Bonus possibles:
 
-* Réaliser une interface pour le client et/ou le serveur.
+* Réaliser une interface pour le travailleur et/ou le serveur.
 
   Le serveur peut être autonome et disposé de ses moyens de production de l'image, soit exposer une interface web pour
   servir l'image courante ou piloter les paramètres (avec des messages spécifiques)
 
-* Ajouter une intégration continue qui permette de tester votre code client et serveur (sous GitHub ou GitLab)
+* Ajouter une intégration continue qui permette de tester votre code travailleur et serveur (sous GitHub ou GitLab)
 
 * Utilisation d'un fichier externe pour recharger des configurations intéressantes ou pour sauvegarder celle courante.
 
@@ -207,20 +207,20 @@ Tous les messages sont de la forme:
 
 La section *Data* est donc composée de (Total message size) - (JSON message size) octets et contient l'ensemble des
 données correspondantes aux sections de type `*Data` (le décodage de cette section dépend des
-paramètres `offset`, `size`).
+paramètres `offset`, `count`).
 
 ### Description des messages
 
 Tous ces messages sont transmis sous la forme d'une
 sérialisation [JSON](https://fr.wikipedia.org/wiki/JavaScript_Object_Notation).
 
-| Nom du message    | Champs du message                                                                                                      | Exemple                                                                                                                                                                                                                                       |
-|-------------------|------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `FragmentRequest` | `worker_name: String`<br/>`maximal_work_load: u32`                                                                     | `{"FragmentRequest":{"worker_name":"fractal painter","maximal_work_load":1000}}`                                                                                                                                                              |
-| `FragmentTask`    | `id: Data`<br/>`fractal: *FractalDescriptor*`<br/>`max_iteration: u16`<br/>`resolution: Resolution`<br/>`range: Range` | `{"FragmentTask":{"id":{"offset":0,"count":8},"fractal":{"Julia":{"c":{"re":0.0,"im":0.1},"divergence_threshold_square":0.0}},"max_iteration":0,"resolution":{"nx":160,"ny":120},"range":{"min":{"x":0.0,"y":0.0},"max":{"x":1.0,"y":1.0}}}}` |
-| `FragmentResult`  | `id: U8Data`<br/>`resolution: Resolution`<br/>`range: Range`<br/>`pixels: PixelData`                                   | `{"FragmentResult":{"id":{"offset":0,"count":8},"resolution":{"x":160,"y":120},"range":{"min":{"x":0.0,"y":0.0},"max":{"x":1.0,"y":1.0}},"pixels":{"offset":8,"count":19200}}}`                                                               |
-| `FragmentScore`   |                                                                                                                        |                                                                                                                                                                                                                                               |
-| `Invalid`         |                                                                                                                        |                                                                                                                                                                                                                                               |
+| Nom du message    | Champs du message                                                                                                        | Exemple                                                                                                                                                                                                                                       |
+|-------------------|--------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `FragmentRequest` | `worker_name: String`<br/>`maximal_work_load: u32`                                                                       | `{"FragmentRequest":{"worker_name":"fractal painter","maximal_work_load":1000}}`                                                                                                                                                              |
+| `FragmentTask`    | `id: U8Data`<br/>`fractal: *FractalDescriptor*`<br/>`max_iteration: u16`<br/>`resolution: Resolution`<br/>`range: Range` | `{"FragmentTask":{"id":{"offset":0,"count":8},"fractal":{"Julia":{"c":{"re":0.0,"im":0.1},"divergence_threshold_square":0.0}},"max_iteration":0,"resolution":{"nx":160,"ny":120},"range":{"min":{"x":0.0,"y":0.0},"max":{"x":1.0,"y":1.0}}}}` |
+| `FragmentResult`  | `id: U8Data`<br/>`resolution: Resolution`<br/>`range: Range`<br/>`pixels: PixelData`                                     | `{"FragmentResult":{"id":{"offset":0,"count":8},"resolution":{"x":160,"y":120},"range":{"min":{"x":0.0,"y":0.0},"max":{"x":1.0,"y":1.0}},"pixels":{"offset":8,"count":19200}}}`                                                               |
+| `FragmentScore`   |                                                                                                                          |                                                                                                                                                                                                                                               |
+| `Invalid`         |                                                                                                                          |                                                                                                                                                                                                                                               |
 
 Vous trouverez le détail de *FractalDescriptor* dans la description de chaque fractale.
 
