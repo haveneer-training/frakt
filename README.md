@@ -4,11 +4,15 @@ L'objet du projet est de composer un réseau de machines permettant d'explorer l
 de [fractales](https://fr.wikipedia.org/wiki/Fractale).
 
 Pour se faire, le réseau est composé d'un serveur réalisant la visualisation ou l'export des images et de travailleurs
-qui se
-connectent au serveur pour récupérer des tâches de calcul pour une fraction de l'image.
+qui se connectent au serveur pour récupérer des tâches de calcul pour une fraction de l'image.
 
 La nature même des fractales que nous traiterons ici permet un découpage du rendu d'une image globale en fragments
 indépendants et donc parfaitement calculables en parallèles par un réseau de machines.
+
+## Errata
+
+* Il y avait un doublon de définition du paramètre `max_iteration` entre `FragmentTask` et `JuliaDescriptor`; il a été
+  retiré de ce dernier (`max_iteration` est donc mutualisé entre toutes les définitions de fractales).
 
 ## Scénario d'une exécution optimale
 
@@ -54,27 +58,28 @@ indépendants et donc parfaitement calculables en parallèles par un réseau de 
 
    À côté de cela, le serveur peut recevoir des directives de modification de la génération de la fractale soit
    interactivement, soit par d'autres commandes issues de messages réseau (dès lors, si un `FragmentResult` arrive alors
-   que la configuration de la fractale a changé, celui-ci sera ignoré).
+   que la configuration de la fractale a changé, celui-ci sera déclaré invalide et ignoré).
 
 ## Les fractales
 
 ### Généralité de calcul
 
 Les calculs de fractales que nous considérons ici consistent en l'évaluation d'une suite $z_{n+1}=f(z_n)$ (à valeurs
-dans le corps des nombres complexes) où l'évaluation s'arrête soit quand $|z_n| > seuil$ ou si $n$ dépasse un maximum
-d'itérations défini par la fractale. Les dernières valeurs de $z_n$ et de $n$ forment les composantes
-de `PixelIntensity`.
+dans le corps des nombres complexes) où l'évaluation s'arrête soit quand on observe que $z_n$ a convergé ou divergé (
+voir le détail pour chaque fractale) ou si $n$ dépasse un maximum d'itérations défini par la fractale. Les dernières
+valeurs de $z_n$ et de $n$ forment les composantes de `PixelIntensity`.
 
 Les coordonnées du pixel pour lequel on évalue cette suite pourra être utilisé soit en tant que valeur de $z_0$ soit
 comme un paramètre interne à la définition de $f$.
 Dans tous les cas, le point physique (représenté comme un nombre complexe, dans l'espace défini par le
 paramètre `range`) devra être pris au centre du pixel associé à la résolution.
 
-TODO: faut-il faire un dessin ?
-
 ### Les modèles de fractales
 
 * [Julia](Julia.md)
+* [Mandelbrot](Mandelbrot.md)
+* [Iterated SinZ](IteratedSinZ.md)
+* [Newton Raphson Z^n](NewtonRaphsonZn.md)
 
 ## Votre objectif
 
@@ -94,6 +99,10 @@ TODO: faut-il faire un dessin ?
       (vous pouvez ajouter aussi des options complémentaires)
 
 * Réaliser un serveur minimal qui permette de tester un travailleur.
+
+  Un serveur de référence vous est fourni pour tester votre client. Vous pouvez le télécharger en tant que documents
+  fournis pour les cours (sur https://myGES.fr). Les présentes instructions contiennent
+  sa [documentation](DemoServer.md).
 
 * Le travailleur doit savoir gérer plusieurs définitions de fractales (en commençant par les ensemble de Julia)
 
@@ -140,7 +149,8 @@ TODO: faut-il faire un dessin ?
     * `anyhow`
     * `tracing`
     * [`pixels`](https://crates.io/crates/pixels), [`egui`](https://github.com/emilk/egui), [`druid`](https://github.com/linebender/druid)
-      ou [`piston`](https://github.com/pistondevelopers/piston)[[`exemples`](https://github.com/pistondevelopers/piston-examples)] si vous envisagez de faire un mode
+      ou [`piston`](https://github.com/pistondevelopers/piston)[[`exemples`](https://github.com/pistondevelopers/piston-examples)]
+      si vous envisagez de faire un mode
       graphique.
 
   Pour tout autre package, vous devrez demander un accord préalable.
@@ -161,7 +171,8 @@ Le jour de la soutenance orale, vous serez évalués sur:
     * Vos éventuels bonus (parmi la liste présentée ou bien d'autres si validés au préalable par l'enseignant)
 
       Les bonus ne sont pris en compte uniquement si le travailleur est fonctionnel (fonctionnement raisonnablement
-      sans planter dans des situations "normales" de jeu). Le niveau minimal fonctionnel du travailleur et du serveur (en
+      sans planter dans des situations "normales" de jeu). Le niveau minimal fonctionnel du travailleur et du serveur (
+      en
       mode test de votre travailleur) défini la note de 10/20.
 * Vous aurez aussi une modification, un petit développement à faire en live sur votre code pendant la soutenance.
 
@@ -219,10 +230,12 @@ sérialisation [JSON](https://fr.wikipedia.org/wiki/JavaScript_Object_Notation).
 | `FragmentRequest` | `worker_name: String`<br/>`maximal_work_load: u32`                                                                       | `{"FragmentRequest":{"worker_name":"fractal painter","maximal_work_load":1000}}`                                                                                                                                                              |
 | `FragmentTask`    | `id: U8Data`<br/>`fractal: *FractalDescriptor*`<br/>`max_iteration: u16`<br/>`resolution: Resolution`<br/>`range: Range` | `{"FragmentTask":{"id":{"offset":0,"count":8},"fractal":{"Julia":{"c":{"re":0.0,"im":0.1},"divergence_threshold_square":0.0}},"max_iteration":0,"resolution":{"nx":160,"ny":120},"range":{"min":{"x":0.0,"y":0.0},"max":{"x":1.0,"y":1.0}}}}` |
 | `FragmentResult`  | `id: U8Data`<br/>`resolution: Resolution`<br/>`range: Range`<br/>`pixels: PixelData`                                     | `{"FragmentResult":{"id":{"offset":0,"count":8},"resolution":{"x":160,"y":120},"range":{"min":{"x":0.0,"y":0.0},"max":{"x":1.0,"y":1.0}},"pixels":{"offset":8,"count":19200}}}`                                                               |
-| `FragmentScore`   |                                                                                                                          |                                                                                                                                                                                                                                               |
-| `Invalid`         |                                                                                                                          |                                                                                                                                                                                                                                               |
 
 Vous trouverez le détail de *FractalDescriptor* dans la description de chaque fractale.
+
+### Séquencement des messages
+
+![Séquencement des messages](images/Sequence.drawio.svg "Séquencement des messages")
 
 ### Les types complémentaires
 

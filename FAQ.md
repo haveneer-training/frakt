@@ -2,7 +2,7 @@
 
 ## Structuration
 
-* Il faut bien (au minimum) 4 crates : `client`, `shared`, `server`, `complex` (nommage indicatif).
+* Il faut bien (au minimum) 4 crates : `worker`, `shared`, `server`, `complex` (nommage indicatif).
 * Il faut bien un fichier `Cargo.toml` à la racine qui les unifie tous (le mot clef magique sera `[workspace]`
   et `members`).
 
@@ -11,8 +11,8 @@ https://github.com/haveneer/rust-quicklook-training/tree/master/rs/full-tree
 
 ## Rejet par le serveur fourni des messages de votre client
 
-Si vous rencontrez des « `message : Too large message size` » de la part du serveur fourni, il est bie possible que vous
-n'ayez pas bien respecté le format de transfert.
+Si vous rencontrez des « `message : Too large message size` » de la part du serveur fourni, il est bien possible que
+vous n'ayez pas bien respecté le format de transfert.
 
 En effet, tel qu'il est décrit
 dans [le sujet](https://github.com/haveneer-training/Frakt#le-protocole-déchange), il y a
