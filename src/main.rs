@@ -1,7 +1,10 @@
 mod messages;
+mod client;
 
-use crate::messages::complementary_types::point::Point;
+use crate::client::client_services::ClientServices;
 
 fn main() {
-    let p = Point::new(2.7, 3.5);
+    let mut client = ClientServices::new(String::from("localhost"), 8787);
+    let request = messages::fragmentrequest::FragmentRequest::new(String::from("w1"), 10);
+    client.request_task(request);
 }
