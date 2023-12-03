@@ -1,3 +1,6 @@
+use serde::{Serialize, Deserialize};
+
+#[derive(Serialize, Deserialize)]
 pub struct FragmentRequest {
     worker_name: String,
     maximal_work_load: u32,

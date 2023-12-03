@@ -3,6 +3,9 @@ use super::complementary_types::resolution::Resolution;
 use super::complementary_types::range::Range;
 use super::complementary_types::pixeldata::PixelData;
 
+use serde::{Serialize, Deserialize};
+
+#[derive(Serialize, Deserialize)]
 pub struct FragmentResult {
     id: U8Data,
     resolution: Resolution,

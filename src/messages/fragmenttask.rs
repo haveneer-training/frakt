@@ -3,6 +3,9 @@ use super::complementary_types::u8data::U8Data;
 use super::complementary_types::resolution::Resolution;
 use super::complementary_types::range::Range;
 
+use serde::{Serialize, Deserialize};
+
+#[derive(Serialize, Deserialize)]
 pub struct FragmentTask {
     id: U8Data,
     //fractal: Fractal,
