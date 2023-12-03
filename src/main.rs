@@ -1,5 +1,9 @@
-extern crate image; 
-use serde::{Serialize, Deserialize};
+extern crate image;
+mod client;
+mod messages;
+
+use crate::client::client_services::ClientServices;
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, Copy)]
 pub struct Complex {
@@ -37,14 +41,14 @@ impl Complex {
     fn abs(self) -> Self {
         Complex {
             re: self.re.abs(),
-            im: self.im.abs()
+            im: self.im.abs(),
         }
     }
 }
 
-fn mandelbrot(x:f64, y:f64) -> f64 {
-    let mut z = Complex { re: 0.0, im: 0.0};
-    let c = Complex { re: x, im: y};
+fn mandelbrot(x: f64, y: f64) -> f64 {
+    let mut z = Complex { re: 0.0, im: 0.0 };
+    let c = Complex { re: x, im: y };
     let max = 256;
     let mut i = 0;
     while i < max && z.arg_sq() < 32.0 {
@@ -55,7 +59,7 @@ fn mandelbrot(x:f64, y:f64) -> f64 {
 }
 
 fn julia(x: f64, y: f64) -> f64 {
-    let mut z = Complex { re: x, im: y};
+    let mut z = Complex { re: x, im: y };
     let c = Complex { re: 0.38, im: 0.28 };
     let max = 256;
     let mut i = 0;
@@ -78,12 +82,10 @@ fn color(t: f64) -> [u8; 3] {
 }
 
 fn main() {
-
     let image_width = 1920;
     let image_height = 1080;
 
-    let mut image_buffer = image::ImageBuffer::new(
-        image_width, image_height);
+    let mut image_buffer = image::ImageBuffer::new(image_width, image_height);
 
     for (x, y, pixel) in image_buffer.enumerate_pixels_mut() {
         let u = x as f64 / image_height as f64;
@@ -93,4 +95,10 @@ fn main() {
     }
 
     image_buffer.save("Mandelbrot.png").unwrap();
+
+    // from Jules
+
+    let mut client = ClientServices::new(String::from("localhost"), 8787);
+    let request = messages::fragmentrequest::FragmentRequest::new(String::from("w1"), 10);
+    client.request_task(request);
 }
