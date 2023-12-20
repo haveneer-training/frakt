@@ -1,8 +1,8 @@
 use std::io::{Write, Read};
 use std::net::TcpStream;
 
-use crate::messages::fragmentrequest::FragmentRequest;
-use crate::messages::fragmenttask::FragmentTask;
+use crate::messages::fragment_request::FragmentRequest;
+use crate::messages::fragment_task::FragmentTask;
 
 pub struct ClientServices {
     stream: TcpStream,
