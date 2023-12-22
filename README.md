@@ -225,8 +225,8 @@ données correspondantes aux sections de type `*Data` (le décodage de cette sec
 paramètres `offset`, `count`).
 
 Par exemple: 
-* si le message contient JSON de 20 octets et 0 data, `JSON message size`== 20 et `Total message size`==20 
-* si le message contient JSON de 20 octets et 8 data, `JSON message size`== 20 et `Total message size`==28
+* si le message contient un JSON de 20 octets et 0 octets de data, `JSON message size`== 20 et `Total message size`==20 
+* si le message contient un JSON de 20 octets et 8 octets de data, `JSON message size`== 20 et `Total message size`==28
 
 ### Description des messages
 
