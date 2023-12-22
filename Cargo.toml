@@ -1,0 +1,10 @@
+[workspace]
+members = [
+    "worker",
+    "shared",
+    "server",
+    "complex",
+]
+
+[profile.dev]
+opt-level = 0
