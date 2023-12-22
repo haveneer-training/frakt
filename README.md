@@ -14,6 +14,9 @@ indépendants et donc parfaitement calculables en parallèles par un réseau de 
 * Il y avait un doublon de définition du paramètre `max_iteration` entre `FragmentTask` et `JuliaDescriptor`; il a été
   retiré de ce dernier (`max_iteration` est donc mutualisé entre toutes les définitions de fractales).
 
+* La définition des fractales `NewtonRaphsonZ*` ont été renommé plus justement `NewtonRaphsonZ*` laissant alors
+  apparaître les *vraies* fractales `NewtonRaphsonZ*`.
+
 ## Scénario d'une exécution optimale
 
 1. Le serveur démarre.
@@ -80,6 +83,7 @@ paramètre `range`) devra être pris au centre du pixel associé à la résoluti
 * [Mandelbrot](Mandelbrot.md)
 * [Iterated SinZ](IteratedSinZ.md)
 * [Newton Raphson Z^n](NewtonRaphsonZn.md)
+* [Nova Newton Raphson Z^n](NovaNewtonRaphsonZn.md)
 
 ## Votre objectif
 
@@ -219,6 +223,10 @@ Tous les messages sont de la forme:
 La section *Data* est donc composée de (Total message size) - (JSON message size) octets et contient l'ensemble des
 données correspondantes aux sections de type `*Data` (le décodage de cette section dépend des
 paramètres `offset`, `count`).
+
+Par exemple: 
+* si le message contient JSON de 20 octets et 0 data, `JSON message size`== 20 et `Total message size`==20 
+* si le message contient JSON de 20 octets et 8 data, `JSON message size`== 20 et `Total message size`==28
 
 ### Description des messages
 
