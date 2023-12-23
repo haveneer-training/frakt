@@ -1,4 +1,4 @@
-use std::{io::{self, Read}, net::TcpListener};
+use std::{io::{self, Read}, net::TcpListener, process};
 
 use clap::Parser;
 
@@ -23,7 +23,15 @@ struct Args{
 fn main() -> io::Result<()>{
     let args = Args::parse();
 
-    let listener = TcpListener::bind(format!("{}:{}", args.server_address, args.port))?;
+    let listener_result = TcpListener::bind(format!("{}:{}", args.server_address, args.port));
+    let listener = match listener_result {
+        Ok(r) => r,
+        Err(error) => {
+            println!("Something went wrong! {}", error);
+            process::exit(1);
+        }
+        
+    };
 
     for stream in listener.incoming() {
         let mut stream = stream?;
