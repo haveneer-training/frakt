@@ -1,7 +1,29 @@
 use std::{io::{self, Read}, net::TcpListener};
 
+use clap::Parser;
+
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args{
+
+    /// Specify address
+    #[arg(long, default_value = "127.0.0.1")]
+    server_address: String,
+
+    /// Specify port 
+    #[arg(short, long, default_value = "8787")]
+    port: String,
+
+    /// Use debug version
+    #[arg(long)]
+    debug: bool,
+}
+
+
 fn main() -> io::Result<()>{
-    let listener = TcpListener::bind("127.0.0.1:8067")?;
+    let args = Args::parse();
+
+    let listener = TcpListener::bind(format!("{}:{}", args.server_address, args.port))?;
 
     for stream in listener.incoming() {
         let mut stream = stream?;

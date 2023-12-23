@@ -13,7 +13,7 @@ struct Args{
     server_address: String,
 
     /// Specify server port 
-    #[arg(short, long, default_value = "8080")]
+    #[arg(short, long, default_value = "8787")]
     port: String,
 
     /// Use debug version
@@ -29,9 +29,7 @@ struct Args{
 fn main() -> io::Result<()> {
     let args = Args::parse();
 
-    println!("address: {}:{}, debug: {}, gpu: {}", args.server_address, args.port, args.debug, args.gpu_use);
-    
-    let mut stream = TcpStream::connect("127.0.0.1:8067")?;
+    let mut stream = TcpStream::connect(format!("{}:{}", args.server_address, args.port))?;
 
     let message = "Hello from the client";
     let message_size = message.len() as u32;
