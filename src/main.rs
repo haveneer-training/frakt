@@ -27,7 +27,7 @@ struct Args{
 }
 
 #[derive(Serialize)]
-struct FramentRequest{
+struct FragmentRequest{
     worker_name: String,
     maximal_work_lead: u32
 }
@@ -45,7 +45,7 @@ fn main() -> io::Result<()> {
         }
     };
 
-    let work_request = FramentRequest {worker_name: String::from("Communication test"), maximal_work_lead: 13};
+    let work_request = FragmentRequest {worker_name: String::from("Communication test"), maximal_work_lead: 13};
     
     let work_serialized = serde_json::to_string(&work_request).unwrap();
     println!("work_request = {}", work_serialized);

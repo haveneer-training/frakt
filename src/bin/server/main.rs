@@ -1,6 +1,8 @@
-use std::{io::{self, Read}, net::TcpListener, process};
-
+use std::io::Read;
+use std::{io, process};
+use std::net::{TcpListener, TcpStream};
 use clap::Parser;
+use serde::Deserialize;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -19,6 +21,11 @@ struct Args{
     debug: bool,
 }
 
+#[derive(Deserialize, Debug)]
+struct FragmentRequest{
+    worker_name: String,
+    maximal_work_lead: u32
+}
 
 fn main() -> io::Result<()>{
     let args = Args::parse();
@@ -32,20 +39,39 @@ fn main() -> io::Result<()>{
         }
         
     };
-
+    
     for stream in listener.incoming() {
-        let mut stream = stream?;
-        println!("Incoming connection {stream:?}");
-
-        let mut lenbuf = [0;4];
-        stream.read_exact(&mut lenbuf)?;
-        let len = u32::from_be_bytes(lenbuf);
-        let mut sbuf = vec![0_u8; len as usize];
-        stream.read(&mut sbuf)?;
-        // println!("{sbuf:?}");
-        let s = String::from_utf8_lossy(&sbuf);
-        println!("{s}")
+        match stream {
+            Ok(mut s) => match handle_client(&mut s) {
+                Ok(_) => {},
+                Err(err) => println!("Data received fro mthe client has a probleme! {}", err)
+            },
+            Err(err) => {
+                println!("Something went wrong with a stream ! {}", err)
+            }
+            
+        }
     }
         
+    Ok(())
+}
+
+fn handle_client(stream: &mut TcpStream) -> Result<(), io::Error> {
+    println!("Incoming connection {stream:?}");
+
+    let mut lenbuf = [0; 4];
+    stream.read_exact(&mut lenbuf)?;
+
+    let len = u32::from_be_bytes(lenbuf);
+    let mut sbuf = vec![0_u8; len as usize];
+
+    stream.read(&mut sbuf)?;
+
+    let s = String::from_utf8_lossy(&sbuf);
+
+    let fragment_request : FragmentRequest = serde_json::from_str(&s)?;
+    println!("{:?}", fragment_request);
+
+
     Ok(())
 }
