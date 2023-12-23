@@ -20,7 +20,7 @@ struct Args{
     #[arg(long)]
     debug: bool,
 
-    /// User GPU or not
+    /// Use GPU
     #[arg(long)]
     gpu_use: bool
 }
