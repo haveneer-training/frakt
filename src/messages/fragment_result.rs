@@ -17,4 +17,11 @@ impl FragmentResult {
     pub fn new(id: U8Data, resolution: Resolution, range: Range, pixels: PixelData) -> FragmentResult {
         FragmentResult { id, resolution, range, pixels }
     }
+
+    pub fn serialize(&self) -> String {
+        let mut serialized = String::from("{\"FragmentResult\":");
+        serialized.push_str(&serde_json::to_string(&self).expect("Could not serialize request"));
+        serialized.push('}');
+        serialized
+    }
 }
