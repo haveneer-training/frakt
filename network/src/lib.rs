@@ -1,7 +1,21 @@
 pub mod models;
 mod utils;
+mod lib_test;
 
-use models::{commmunication::{FragmentRequest, FragmentTask, NetworkProtocoles, U8Data, Complex, Resolution, Range, Point}, fractal::{JuliaDescriptor, FreactalDescriptor}};
+use models::{
+    commmunication::{
+        FragmentRequest, 
+        FragmentTask, 
+        NetworkProtocoles, 
+        U8Data, 
+        Complex, 
+        Resolution, 
+        Range, 
+        Point}, 
+    fractal::{
+        JuliaDescriptor, 
+        FreactalDescriptor
+    }};
 use utils::json;
 
 use std::{
@@ -152,7 +166,6 @@ impl Network {
         let mut sbuf = vec![0_u8; json_message_size as usize];
         stream.read(&mut sbuf)?;
         let s = String::from_utf8_lossy(&sbuf);
-        println!("{}", s);
         let fragment_request = json::to_fragment(&s.to_string());
         let fragment = match fragment_request {
             Ok(r) => r,

@@ -1,4 +1,4 @@
-use crate::models::commmunication::{NetworkProtocoles};
+use crate::models::commmunication::NetworkProtocoles;
 
 pub fn to_string(message: &NetworkProtocoles) -> Result<String, serde_json::Error> {
     serde_json::to_string(message)

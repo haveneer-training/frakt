@@ -1,6 +1,5 @@
 use clap::Parser;
 use network::Network;
-use network::models::commmunication::FragmentRequest;
 use std::net::TcpStream;
 use std::{io, process};
 
