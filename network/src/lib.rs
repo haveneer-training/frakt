@@ -1,5 +1,6 @@
 pub mod models;
 mod utils;
+mod lib_test;
 
 use models::{
     commmunication::{
