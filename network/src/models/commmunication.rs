@@ -25,42 +25,42 @@ pub enum NetworkProtocoles {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct U8Data {
-    offset: u32,
-    count: u32
+    pub offset: u32,
+    pub count: u32
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Complex {
-    re: f64,
-    im: f64
+    pub re: f64,
+    pub im: f64
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Point {
-    x: f64,
-    y: f64
+    pub x: f64,
+    pub y: f64
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Range {
-    min: Point,
-    max: Point
+    pub min: Point,
+    pub max: Point
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Resolution {
-    nx: u16,
-    ny: u16
+    pub nx: u16,
+    pub ny: u16
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 struct PixelData {
-    offset: u32,
-    count: u32
+    pub offset: u32,
+    pub count: u32
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct PixelIntensity {
-    zn: f32,
-    count: f32
+    pub zn: f32,
+    pub count: f32
 }

@@ -25,9 +25,9 @@ struct Args {
 fn main() -> io::Result<()> {
     let args = Args::parse();
 
-    let network = Network::new(args.server_address, args.port);
+    let server = Network::new(args.server_address, args.port);
 
-    let stream_result = network.get_server_connection();
+    let stream_result = server.connect_to_server();
 
     let mut stream = match stream_result {
         Ok(rep) => rep,
@@ -38,8 +38,8 @@ fn main() -> io::Result<()> {
         }
     };
 
-    let fractal_request_request = network.ask_for_work(&mut stream, "Groupe 7".to_string(), 100);
-    let fragment_request: FragmentTask = match fractal_request_request {
+    let fractal_task_request = Network::ask_for_work(&mut stream, "Groupe 7".to_string(), 100);
+    let fragment_task: FragmentTask = match fractal_task_request {
         Ok(fragment) => fragment,
         Err(err) => {
             println!("Something went wrong: {}", err);
@@ -47,7 +47,7 @@ fn main() -> io::Result<()> {
         }
     };
 
-    println!("Your work: {:?}", fragment_request);
+    println!("Your work: {:?}", fragment_task);
 
     Ok(())
 }

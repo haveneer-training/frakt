@@ -3,8 +3,8 @@ use super::commmunication::Complex;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct JuliaDescriptor {
-    c: Complex,
-    divergence_threshold_square: f64
+    pub c: Complex,
+    pub divergence_threshold_square: f64
 }
 
 #[derive(Serialize, Deserialize, Debug)]
