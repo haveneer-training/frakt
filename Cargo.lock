@@ -97,16 +97,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "acbf1af155f9b9ef647e42cdc158db4b64a1b61f743629225fde6f3e0be2a7c7"
 
 [[package]]
-name = "frakt"
-version = "0.1.0"
-dependencies = [
- "clap",
- "log",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "heck"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -119,10 +109,30 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b1a46d1a171d865aa5f83f92695765caa047a9b4cbae2cbf37dbd613a793fd4c"
 
 [[package]]
-name = "log"
-version = "0.4.20"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b5e6163cb8c49088c2c36f57875e58ccd8c87c7427f7fbd50ea6710b2f3f2e8f"
+name = "jerry-smith"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "network",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "mr-meeseeks"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "network",
+]
+
+[[package]]
+name = "network"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+]
 
 [[package]]
 name = "proc-macro2"

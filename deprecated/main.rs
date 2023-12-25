@@ -45,8 +45,8 @@ fn main() -> io::Result<()> {
     let fractal_request_request = network.ask_for_work(&mut stream, "Groupe 7".to_string(), 100);
     let fragment_request: FragmentTask = match fractal_request_request {
         Ok(fragment) => fragment,
-        Err(_) => {
-            println!("The type of response received by the server is wrong");
+        Err(err) => {
+            println!("Something went wrong: {}", err);
             process::exit(1)
         }
     };

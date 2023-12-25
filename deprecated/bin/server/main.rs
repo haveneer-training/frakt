@@ -14,7 +14,7 @@ struct Args{
 
     /// Specify port 
     #[arg(short, long, default_value = "8787")]
-    port: String,
+    port: String,a
 
     /// Use println version
     #[arg(long)]
