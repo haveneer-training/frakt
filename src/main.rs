@@ -1,8 +1,8 @@
-use std::{io, process};
-use std::net::TcpStream;
-use std::io::Write;
-use serde::Serialize;
+mod models;
+mod utils;
 
+use std::{io, process};
+use models::{network::Network, commmunication::FragmentTask};
 use clap::Parser;
 
 #[derive(Parser, Debug)]
@@ -26,16 +26,13 @@ struct Args{
     gpu_use: bool
 }
 
-#[derive(Serialize)]
-struct FragmentRequest{
-    worker_name: String,
-    maximal_work_lead: u32
-}
-
 fn main() -> io::Result<()> {
     let args = Args::parse();
 
-    let stream_result = TcpStream::connect(format!("{}:{}", args.server_address, args.port));
+    let network = Network::new(args.server_address, args.port);
+
+    let stream_result = network.get_server_connection();
+
     let mut stream = match stream_result {
         Ok(rep) => rep,
         Err(err) => {
@@ -45,14 +42,16 @@ fn main() -> io::Result<()> {
         }
     };
 
-    let work_request = FragmentRequest {worker_name: String::from("Communication test"), maximal_work_lead: 13};
-    
-    let work_serialized = serde_json::to_string(&work_request).unwrap();
-    println!("work_request = {}", work_serialized);
+    let fractal_request_request = network.ask_for_work(&mut stream, "Groupe 7".to_string(), 100);
+    let fragment_request: FragmentTask = match fractal_request_request {
+        Ok(fragment) => fragment,
+        Err(_) => {
+            println!("The type of response received by the server is wrong");
+            process::exit(1)
+        }
+    };
 
-    let message_size = work_serialized.len() as u32;
-    stream.write(&message_size.to_be_bytes())?;
-    stream.write(work_serialized.as_bytes())?;
+    println!("Your work: {:?}", fragment_request);
 
     Ok(())
 }
