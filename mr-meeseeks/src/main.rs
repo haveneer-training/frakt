@@ -1,6 +1,6 @@
 use clap::Parser;
 use env_logger::Env;
-use log::info;
+use log::{info, error, debug};
 use network::{models::commmunication::FragmentTask, Network};
 use std::{io, process};
 
@@ -46,7 +46,7 @@ fn main() -> io::Result<()> {
         Ok(rep) => rep,
         Err(err) => {
             // TODO: Try serveral times
-            println!("The server unreachable! {}", err);
+            error!("The server unreachable! {}", err);
             process::exit(1)
         }
     };
@@ -55,12 +55,12 @@ fn main() -> io::Result<()> {
     let fragment_task: FragmentTask = match fractal_task_request {
         Ok(fragment) => fragment,
         Err(err) => {
-            println!("Something went wrong: {}", err);
+            error!("Something went wrong: {}", err);
             process::exit(1)
         }
     };
 
-    println!("Your work: {:?}", fragment_task);
+    debug!("FragmentTask from server : {:?}", fragment_task);
 
     Ok(())
 }

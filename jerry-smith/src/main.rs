@@ -1,4 +1,5 @@
 use clap::Parser;
+use log::{info, warn, error};
 use network::Network;
 use std::net::TcpStream;
 use std::{io, process};
@@ -14,12 +15,15 @@ struct Args {
     #[arg(short, long, default_value = "8787")]
     port: String,
 
-    /// Use println version
+    /// Use debug version
     #[arg(long)]
-    println: bool,
+    debug: bool,
 }
 
 fn main() -> io::Result<()> {
+
+    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("debug")).init();
+
     let args = Args::parse();
 
     let server = Network::new(args.server_address, args.port);
@@ -27,7 +31,7 @@ fn main() -> io::Result<()> {
     let listener = match listener_result {
         Ok(r) => r,
         Err(error) => {
-            println!("Serevr failed to start! {}", error);
+            error!("Serevr failed to start! {}", error);
             process::exit(1);
         }
     };
@@ -36,10 +40,10 @@ fn main() -> io::Result<()> {
         match stream {
             Ok(mut s) => match handle_client(&mut s) {
                 Ok(_) => {}
-                Err(err) => println!("Data received from the client has a probleme! {}", err),
+                Err(err) => warn!("Data received from the client has a probleme! {}", err),
             },
             Err(err) => {
-                println!("Something went wrong with a stream ! {}", err)
+                warn!("Something went wrong with a stream ! {}", err)
             }
         }
     }
@@ -48,10 +52,9 @@ fn main() -> io::Result<()> {
 }
 
 fn handle_client(stream: &mut TcpStream) -> Result<(), io::Error> {
-    println!("Incoming connection {stream:?}");
+    info!("Incoming connection {stream:?}");
 
-    let fragment_request = Network::get_work_request(stream)?;
-    println!("Asked for: {:?}", fragment_request);
+    let _fragment_request = Network::get_work_request(stream)?;
 
     Network::send_work(stream)?;
 
