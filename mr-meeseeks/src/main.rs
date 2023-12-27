@@ -1,4 +1,6 @@
 use clap::Parser;
+use env_logger::Env;
+use log::info;
 use network::{models::commmunication::FragmentTask, Network};
 use std::{io, process};
 
@@ -23,6 +25,17 @@ struct Args {
 }
 
 fn main() -> io::Result<()> {
+
+    env_logger::Builder::from_env(Env::default().default_filter_or("debug")).init();
+    // INFO: Log levels: 
+    //  error
+    //  warn
+    //  info
+    //  debug
+    //  trace
+
+    info!("--- Server Start ---");
+
     let args = Args::parse();
 
     let server = Network::new(args.server_address, args.port);
