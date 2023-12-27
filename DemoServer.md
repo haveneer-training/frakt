@@ -17,30 +17,43 @@ Usage: server [OPTIONS]
 Options:
       --port <PORT>
           Port to listen to
-
+          
           [default: 8787]
 
       --host-address <HOST_ADDRESS>
           Address allowed to connect to.
-
+          
           Should be different from localhost to allow external connections
-
+          
           [default: localhost]
 
   -v, --verbose
           Display detail
-
+          
           log will show code path
 
       --debug
           Log additional debug info
 
+      --trace
+          Log additional details data fragment
+
       --server-rendering
           The server also render fractals
 
+      --width <WIDTH>
+          Initial width at startup
+          
+          [default: 1200]
+
+      --height <HEIGHT>
+          Initial height at startup
+          
+          [default: 1200]
+
       --ntiles <NTILES>
           The server also render fractals
-
+          
           [default: 4]
 
       --random-tiles
@@ -53,13 +66,13 @@ Options:
           Print help (see a summary with '-h')
 ```
 
-Lors de la mise au point, pour voir quelques détails sur la communication worker-server, l'option `--debug` est
+Lors de la mise au point, pour voir quelques détails sur la communication worker<->server, l'option `--debug` est
 recommandée.
 
 Par défaut, l'interface réseau d'écoute est celle associée à `localhost`. Ainsi, si vous souhaitez l'utiliser sur un
 réseau (local par exemple), il faudra lui préciser l'interface d'écoute sous la forme:
 
-```asm
+```bash
 $ ./server --host-address=192.168.1.99
 ```
 

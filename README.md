@@ -11,6 +11,8 @@ indépendants et donc parfaitement calculables en parallèles par un réseau de 
 
 ## Errata
 
+* `max_iteration` a été promu en `u32` (pour plus de détails)
+
 * Il y avait un doublon de définition du paramètre `max_iteration` entre `FragmentTask` et `JuliaDescriptor`; il a été
   retiré de ce dernier (`max_iteration` est donc mutualisé entre toutes les définitions de fractales).
 
@@ -236,7 +238,7 @@ sérialisation [JSON](https://fr.wikipedia.org/wiki/JavaScript_Object_Notation).
 | Nom du message    | Champs du message                                                                                                        | Exemple                                                                                                                                                                                                                                       |
 |-------------------|--------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `FragmentRequest` | `worker_name: String`<br/>`maximal_work_load: u32`                                                                       | `{"FragmentRequest":{"worker_name":"fractal painter","maximal_work_load":1000}}`                                                                                                                                                              |
-| `FragmentTask`    | `id: U8Data`<br/>`fractal: *FractalDescriptor*`<br/>`max_iteration: u16`<br/>`resolution: Resolution`<br/>`range: Range` | `{"FragmentTask":{"id":{"offset":0,"count":8},"fractal":{"Julia":{"c":{"re":0.0,"im":0.1},"divergence_threshold_square":0.0}},"max_iteration":0,"resolution":{"nx":160,"ny":120},"range":{"min":{"x":0.0,"y":0.0},"max":{"x":1.0,"y":1.0}}}}` |
+| `FragmentTask`    | `id: U8Data`<br/>`fractal: *FractalDescriptor*`<br/>`max_iteration: u32`<br/>`resolution: Resolution`<br/>`range: Range` | `{"FragmentTask":{"id":{"offset":0,"count":8},"fractal":{"Julia":{"c":{"re":0.0,"im":0.1},"divergence_threshold_square":0.0}},"max_iteration":0,"resolution":{"nx":160,"ny":120},"range":{"min":{"x":0.0,"y":0.0},"max":{"x":1.0,"y":1.0}}}}` |
 | `FragmentResult`  | `id: U8Data`<br/>`resolution: Resolution`<br/>`range: Range`<br/>`pixels: PixelData`                                     | `{"FragmentResult":{"id":{"offset":0,"count":8},"resolution":{"x":160,"y":120},"range":{"min":{"x":0.0,"y":0.0},"max":{"x":1.0,"y":1.0}},"pixels":{"offset":8,"count":19200}}}`                                                               |
 
 Vous trouverez le détail de *FractalDescriptor* dans la description de chaque fractale.
@@ -262,6 +264,8 @@ L'attribut `zn` correspond au module en fin d'itération et `count` au nombre d'
 maximum d'itérations. Les champs de `PixelIntensity` sont sérialisés en un flux octets (avec encodage Big Endian) dans
 l'ordre `zn` puis `count` et les pixels d'un `FragmentResult` sont sérialisés successivement ligne par ligne, de gauche
 à droite pour chaque ligne.
+
+![Range et Resolution](images/RangeAndResolution.svg "Range et Resolution")
 
 ## Couleur et rendu par le serveur
 

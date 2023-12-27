@@ -4,7 +4,7 @@ Dans ce cas, la fonction $f(z_n) = z_n - \frac{p(z_n)}{p'(z_n)}$ où $p(z)$ est 
 correspond à un pixel exprimé sous la forme d'un nombre complexe dans l'espace physique défini par le paramètre
 global `range`.
 
-On décide ici d'arrêter les itérations dès que $|z_{n+1}-z_n|^2 < 1e-6$.
+On décide ici d'arrêter les itérations dès que $|z_{n+1}-z_n|^2 < 10^{-6}$.
 
 On utilise ici une construction différente de `PixelIntensity` où, comme précédemment le champ `zn` vaut $|z_n|$ (module
 de la dernière valeur de $z_n$ mais où `count` vaut l'argument[^1] de $z_n$ normalisé entre 0 et 1)
@@ -18,4 +18,4 @@ de la dernière valeur de $z_n$ mais où `count` vaut l'argument[^1] de $z_n$ no
 |-------------------------------------|-------------------------------------|
 | ![](images/NewtonRaphsonZ3.png) | ![](images/NewtonRaphsonZ4.png) |
 
-[^1]: argument au sens des nombres complexité où $ z = |z| \cdot e^{\i \arg(z)}$
+[^1]: argument au sens des nombres complexes où $ z = |z| \cdot e^{\i \arg(z)}$

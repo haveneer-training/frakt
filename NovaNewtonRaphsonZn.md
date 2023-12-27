@@ -4,7 +4,7 @@ Dans ce cas, la fonction $f(z_n) = z_n - \frac{p(z_n)}{p'(z_n)} + c$ où $p(z)$ 
 $c$ correspond à un pixel exprimé sous la forme d'un nombre complexe dans l'espace physique défini par le paramètre
 global `range`.
 
-On décide ici d'arrêter les itérations dès que $|z_{n+1}-z_n|^2 < 1e-6$.
+On décide ici d'arrêter les itérations dès que $|z_{n+1}-z_n|^2 < 10^{-6}$.
 
 | Nom du type           | Description du type |
 |-----------------------|---------------------|
