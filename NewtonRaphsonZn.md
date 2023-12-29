@@ -6,16 +6,16 @@ global `range`.
 
 On décide ici d'arrêter les itérations dès que $|z_{n+1}-z_n|^2 < 10^{-6}$.
 
-On utilise ici une construction différente de `PixelIntensity` où, comme précédemment le champ `zn` vaut $|z_n|$ (module
-de la dernière valeur de $z_n$ mais où `count` vaut l'argument[^1] de $z_n$ normalisé entre 0 et 1)
+On utilise ici une construction différente de `PixelIntensity` où, comme précédemment, le champ `count` vaut comme
+`n` / `max_iteration` mais où `zn` vaut l'argument[^1] de $z_n$ normalisé entre 0 et 1.
 
 | Nom du type       | Description du type |
 |-------------------|---------------------|
 | `NewtonRaphsonZ3` | (aucun champ)       |
 | `NewtonRaphsonZ4` | (aucun champ)       |
 
-| `NewtonRaphsonZ3`: $p(z)=z^3-1$     | `NewtonRaphsonZ4`: $p(z)=z^4-1$     |
-|-------------------------------------|-------------------------------------|
+| `NewtonRaphsonZ3`: $p(z)=z^3-1$ | `NewtonRaphsonZ4`: $p(z)=z^4-1$ |
+|---------------------------------|---------------------------------|
 | ![](images/NewtonRaphsonZ3.png) | ![](images/NewtonRaphsonZ4.png) |
 
 [^1]: argument au sens des nombres complexes où $ z = |z| \cdot e^{\i \arg(z)}$

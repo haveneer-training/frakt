@@ -3,7 +3,7 @@
 Dans ce cas, la fonction $f(z_n) = z_n^2 + c$ où $c$ est un nombre complexe donné en paramètre et $z_0$ correspond à un
 pixel exprimé sous la forme d'un nombre complexe dans l'espace physique défini par le paramètre global `range`.
 
-On décide ici d'arrêter les itérations dès que $|z_n|^2 > divergence_threshold_square$.
+On décide ici d'arrêter les itérations dès que $|z_n|^2 > \eta$ où $\eta$ correspond au `divergence_threshold_square`.
 
 | Nom du type       | Description du type                                 |
 |-------------------|-----------------------------------------------------|

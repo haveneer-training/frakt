@@ -9,7 +9,10 @@ qui se connectent au serveur pour récupérer des tâches de calcul pour une fra
 La nature même des fractales que nous traiterons ici permet un découpage du rendu d'une image globale en fragments
 indépendants et donc parfaitement calculables en parallèles par un réseau de machines.
 
-## Errata
+## Errata / changes
+
+* Le calcul spécifique à [Newton Raphson Z^n](NewtonRaphsonZn.md) des champs `zn` et `count` de `PixelIntensity` a été modifié pour que `count`
+  reste plus classique et `zn` plus *utile* pour cette courbe où $|z_n| converge naturellement vers 1.
 
 * `max_iteration` a été promu en `u32` (pour plus de détails)
 
@@ -72,7 +75,7 @@ indépendants et donc parfaitement calculables en parallèles par un réseau de 
 Les calculs de fractales que nous considérons ici consistent en l'évaluation d'une suite $z_{n+1}=f(z_n)$ (à valeurs
 dans le corps des nombres complexes) où l'évaluation s'arrête soit quand on observe que $z_n$ a convergé ou divergé (
 voir le détail pour chaque fractale) ou si $n$ dépasse un maximum d'itérations défini par la fractale. Les dernières
-valeurs de $z_n$ et de $n$ forment les composantes de `PixelIntensity`.
+valeurs de $z_n$ et de $n / max_{iteration}$ forment les composantes de `PixelIntensity`.
 
 Les coordonnées du pixel pour lequel on évalue cette suite pourra être utilisé soit en tant que valeur de $z_0$ soit
 comme un paramètre interne à la définition de $f$.
@@ -226,8 +229,9 @@ La section *Data* est donc composée de (Total message size) - (JSON message siz
 données correspondantes aux sections de type `*Data` (le décodage de cette section dépend des
 paramètres `offset`, `count`).
 
-Par exemple: 
-* si le message contient un JSON de 20 octets et 0 octets de data, `JSON message size`== 20 et `Total message size`==20 
+Par exemple:
+
+* si le message contient un JSON de 20 octets et 0 octets de data, `JSON message size`== 20 et `Total message size`==20
 * si le message contient un JSON de 20 octets et 8 octets de data, `JSON message size`== 20 et `Total message size`==28
 
 ### Description des messages
@@ -260,10 +264,13 @@ Vous trouverez le détail de *FractalDescriptor* dans la description de chaque f
 | `PixelIntensity` | `zn: f32`<br/>`count: f32`     |
 
 Un objet de `PixelIntensity` correspond à la valeur donnée par la fonction *fractale* choisie pour un pixel.
-L'attribut `zn` correspond au module en fin d'itération et `count` au nombre d'itérations effectués divisé par le nombre
-maximum d'itérations. Les champs de `PixelIntensity` sont sérialisés en un flux octets (avec encodage Big Endian) dans
-l'ordre `zn` puis `count` et les pixels d'un `FragmentResult` sont sérialisés successivement ligne par ligne, de gauche
-à droite pour chaque ligne.
+Sauf consigne particulière pour certaines fractales, L'attribut `zn` correspond au module en fin d'itération et `count`
+au nombre d'itérations effectués divisé par le nombre maximum d'itérations (donc 0 ≤ `count` ≤ 1; `count` vaut 1 si le
+calcul n'a pas convergé).
+
+Les champs de `PixelIntensity` sont sérialisés en un flux octets (avec
+encodage Big Endian) dans l'ordre `zn` puis `count` et les pixels d'un `FragmentResult` sont sérialisés successivement
+ligne par ligne, de gauche à droite pour chaque ligne.
 
 ![Range et Resolution](images/RangeAndResolution.svg "Range et Resolution")
 
