@@ -1,8 +1,12 @@
+mod utils;
+
 use clap::Parser;
 use env_logger::Env;
-use log::{info, error, debug};
+use log::{error, debug};
 use network::{models::commmunication::FragmentTask, Network};
 use std::{io, process};
+
+use crate::utils::start_util;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -25,7 +29,8 @@ struct Args {
 }
 
 fn main() -> io::Result<()> {
-
+    start_util::start_message();
+    
     env_logger::Builder::from_env(Env::default().default_filter_or("debug")).init();
     // INFO: Log levels: 
     //  error
@@ -33,8 +38,6 @@ fn main() -> io::Result<()> {
     //  info
     //  debug
     //  trace
-
-    info!("--- Server Start ---");
 
     let args = Args::parse();
 
