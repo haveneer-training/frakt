@@ -1,6 +1,6 @@
-use serde::{Serialize, Deserialize};
+use serde::{Serialize, Deserialize}; 
 
-use super::fractal::FreactalDescriptor;
+use crate::fractal::fractal_types::FreactalDescriptor;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct FragmentRequest {

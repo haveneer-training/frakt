@@ -66,6 +66,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "327762f6e5a765692301e5bb513e0d9fef63be86bbc14528052b1cd3e6f03e07"
 
 [[package]]
+name = "blue-box"
+version = "0.1.0"
+dependencies = [
+ "log",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "clap"
 version = "4.4.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -173,10 +182,10 @@ checksum = "b1a46d1a171d865aa5f83f92695765caa047a9b4cbae2cbf37dbd613a793fd4c"
 name = "jerry-smith"
 version = "0.1.0"
 dependencies = [
+ "blue-box",
  "clap",
  "env_logger",
  "log",
- "network",
  "serde",
  "serde_json",
 ]
@@ -209,19 +218,10 @@ checksum = "f665ee40bc4a3c5590afb1e9677db74a508659dfd71e126420da8274909a0167"
 name = "mr-meeseeks"
 version = "0.1.0"
 dependencies = [
+ "blue-box",
  "clap",
  "env_logger",
  "log",
- "network",
-]
-
-[[package]]
-name = "network"
-version = "0.1.0"
-dependencies = [
- "log",
- "serde",
- "serde_json",
 ]
 
 [[package]]

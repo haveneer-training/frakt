@@ -1,9 +1,9 @@
 mod utils;
 
+use blue_box::network::{client::Client, communication_types::FragmentTask};
 use clap::Parser;
 use env_logger::Env;
 use log::{error, debug};
-use network::{models::commmunication::FragmentTask, Network};
 use std::{io, process};
 
 use crate::utils::start_util;
@@ -41,7 +41,7 @@ fn main() -> io::Result<()> {
 
     let args = Args::parse();
 
-    let server = Network::new(args.server_address, args.port);
+    let server = Client::new(args.server_address, args.port);
 
     let stream_result = server.connect_to_server();
 
@@ -54,7 +54,7 @@ fn main() -> io::Result<()> {
         }
     };
 
-    let fractal_task_request = Network::ask_for_work(&mut stream, "Groupe 7".to_string(), 100);
+    let fractal_task_request = Client::ask_for_work(&mut stream, "Groupe 7".to_string(), 100);
     let fragment_task: FragmentTask = match fractal_task_request {
         Ok(fragment) => fragment,
         Err(err) => {
