@@ -10,6 +10,26 @@ pub struct JuliaDescriptor {
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
+pub struct Mandelbrot{}
+
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
+pub struct IteratedSinZ{
+    pub c: Complex,
+}
+
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
+pub struct NewtonRaphsonZ3{
+}
+
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
+pub struct NewtonRaphsonZ4{
+}
+
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub enum FreactalDescriptor {
-    Julia(JuliaDescriptor)
+    Julia(JuliaDescriptor),
+    Mandelbrot(Mandelbrot),
+    IteratedSinZ(IteratedSinZ),
+    NewtonRaphsonZ3(NewtonRaphsonZ3),
+    NewtonRaphsonZ4(NewtonRaphsonZ4)
 }

@@ -1,9 +1,9 @@
 mod utils;
 
-use blue_box::network::{client::Client, communication_types::{FragmentTask, FragmentResult, PixelData}};
+use blue_box::{network::{client::Client, communication_types::{FragmentTask, FragmentResult, PixelData}}, fractal::fractal::Fractal};
 use clap::Parser;
 use env_logger::Env;
-use log::{error, debug};
+use log::{error, debug, info, warn};
 use std::{io, process};
 
 use crate::utils::start_util;
@@ -70,7 +70,7 @@ fn main() -> io::Result<()> {
 
     // INFO: From here, you have everything you need to calculate the fractals
 
-    let fragment_result: FragmentResult = FragmentResult {
+    let mut fragment_result: FragmentResult = FragmentResult {
         id: fragment_task.id.clone(),
         resolution: fragment_task.resolution.clone(),
         range: fragment_task.range.clone(),
@@ -79,8 +79,14 @@ fn main() -> io::Result<()> {
             count: 0_u32
         }
     };
+
+    Fractal::run(&fragment_task, &mut fragment_result, &mut data);
     
-    Client::send_work_done(&mut stream, fragment_result, data);
+    let response = Client::send_work_done(&mut stream, fragment_result, data);
+    match response {
+        Ok(_) => info!("Result sent to server"),
+        Err(err) => warn!("Can't send result to server: {err}")
+    }
 
     Ok(())
 }
