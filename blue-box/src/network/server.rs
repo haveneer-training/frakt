@@ -2,7 +2,7 @@ use std::{net::{TcpListener, TcpStream}, io};
 
 use crate::{fractal::fractal_types::{FreactalDescriptor, JuliaDescriptor}, utils::json};
 
-use super::{network::Network, communication_types::{FragmentRequest, NetworkProtocoles, FragmentTask, U8Data, Complex, Resolution, Range, Point}};
+use super::{network::Network, communication_types::{FragmentRequest, NetworkProtocoles, FragmentTask, U8Data, Complex, Resolution, Range, Point, FragmentResult}};
 
 
 #[derive(Debug)]
@@ -23,11 +23,15 @@ impl Server {
     }
 
     
-    pub fn get_work_request(stream: &mut TcpStream) -> Result<FragmentRequest, io::Error> {
+    pub fn get_work_request(stream: &mut TcpStream) -> Result<(FragmentRequest, Vec<u8>), io::Error> {
 
         match Network::read_message(stream) {
-            Ok(NetworkProtocoles::FragmentRequest(fragment)) => Ok(fragment),
-            Ok(NetworkProtocoles::FragmentTask(_)) => Err(io::Error::new(
+            Ok((NetworkProtocoles::FragmentRequest(fragment), data)) => Ok((fragment, data)),
+            Ok((NetworkProtocoles::FragmentTask(_), _ )) => Err(io::Error::new(
+                io::ErrorKind::UnexpectedEof,
+                "Did not send a job request",
+            )),
+            Ok((NetworkProtocoles::FragmentResult(_), _ )) => Err(io::Error::new(
                 io::ErrorKind::UnexpectedEof,
                 "Did not send a job request",
             )),
@@ -71,8 +75,25 @@ impl Server {
         let network_test_fragment = NetworkProtocoles::FragmentTask(test_fragment_task);
         let network_test_fragment_serialized = json::to_string(&network_test_fragment)?;
 
-        Network::send_message(stream, network_test_fragment_serialized, "".to_string())?;
+        let data_tmp: Vec<u8> = Vec::new();
+        Network::send_message(stream, network_test_fragment_serialized, data_tmp)?;
 
         Ok(())
+    }
+
+    pub fn get_work_done(stream: &mut TcpStream) -> Result<(FragmentResult, Vec<u8>), io::Error>{
+        match Network::read_message(stream) {
+            Ok((NetworkProtocoles::FragmentResult(fragment), data)) => Ok((fragment, data)),
+            Ok((NetworkProtocoles::FragmentTask(_), _ )) => Err(io::Error::new(
+                io::ErrorKind::UnexpectedEof,
+                "Did not send a job done",
+            )),
+            Ok((NetworkProtocoles::FragmentRequest(_), _ )) => Err(io::Error::new(
+                io::ErrorKind::UnexpectedEof,
+                "Did not send a job done",
+            )),
+            Err(err) => Err(err)
+        }
+
     }
 }

@@ -31,23 +31,23 @@ impl Network {
     pub fn send_message(
         stream: &mut TcpStream,
         json_message: String,
-        data: String,
+        data: Vec<u8>,
     ) -> Result<(), io::Error> {
         let json_message_size = json_message.len() as u32;
         let data_message_size = data.len() as u32;
         let total_message_size: u32 = json_message_size + data_message_size;
 
-        stream.write(&total_message_size.to_be_bytes())?;
-        stream.write(&json_message_size.to_be_bytes())?;
-        stream.write(&json_message.as_bytes())?;
-        stream.write(&data.as_bytes())?;
+        stream.write_all(&total_message_size.to_be_bytes())?;
+        stream.write_all(&json_message_size.to_be_bytes())?;
+        stream.write_all(&json_message.as_bytes())?;
+        stream.write_all(&data)?;
 
         debug!("Sent message : {json_message}", );
 
         Ok(())
     }
 
-    pub fn read_message(stream: &mut TcpStream) -> Result<NetworkProtocoles, io::Error> {
+    pub fn read_message(stream: &mut TcpStream) -> Result<(NetworkProtocoles, Vec<u8>), io::Error> {
         let mut total_len_buf = [0; 4];
         stream.read_exact(&mut total_len_buf)?;
         let total_message_size = u32::from_be_bytes(total_len_buf);
@@ -82,12 +82,12 @@ impl Network {
             }
         };
 
-        let mut data_len_buf = vec![0_u8; data_message_size as usize];
-        stream.read(&mut data_len_buf)?;
+        let mut data = vec![0_u8; data_message_size as usize];
+        stream.read(&mut data)?;
 
-        trace!("Data received : {:?}", data_len_buf);
+        debug!("Data size: {:?}", data.len());
         // let data = String::from_utf8_lossy(&data_len_buf);
 
-        Ok(fragment)
+        Ok((fragment, data))
     }
 }
