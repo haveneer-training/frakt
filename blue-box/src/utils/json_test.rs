@@ -2,7 +2,7 @@
 
 use std::process;
 
-use crate::{models::commmunication::{NetworkProtocoles, FragmentRequest}, utils::json};
+use crate::{network::communication_types::{NetworkProtocoles, FragmentRequest}, utils::json};
 
 
 #[test]

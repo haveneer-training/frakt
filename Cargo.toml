@@ -2,7 +2,7 @@
 members = [
     "jerry-smith",
     "mr-meeseeks",
-    "network"
+    "blue-box"
 ]
 resolver = "2"
 default-members = [

@@ -1,5 +1,7 @@
-use serde::{Serialize, Deserialize}; 
-use super::commmunication::Complex;
+use serde::{Serialize, Deserialize};
+
+use crate::network::communication_types::Complex;
+
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct JuliaDescriptor {

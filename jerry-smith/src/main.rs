@@ -1,6 +1,6 @@
+use blue_box::network::server::Server;
 use clap::Parser;
 use log::{info, warn, error};
-use network::Network;
 use std::net::TcpStream;
 use std::{io, process};
 
@@ -26,7 +26,7 @@ fn main() -> io::Result<()> {
 
     let args = Args::parse();
 
-    let server = Network::new(args.server_address, args.port);
+    let server = Server::new(args.server_address, args.port);
     let listener_result = server.start_server();
     let listener = match listener_result {
         Ok(r) => r,
@@ -54,9 +54,9 @@ fn main() -> io::Result<()> {
 fn handle_client(stream: &mut TcpStream) -> Result<(), io::Error> {
     info!("Incoming connection {stream:?}");
 
-    let _fragment_request = Network::get_work_request(stream)?;
+    let _fragment_request = Server::get_work_request(stream)?;
 
-    Network::send_work(stream)?;
+    Server::send_work(stream)?;
 
     Ok(())
 }
