@@ -1,3 +1,4 @@
+use blue_box::network::communication_types::FragmentResult;
 use blue_box::network::server::Server;
 use clap::Parser;
 use log::{info, warn, error};
@@ -57,6 +58,18 @@ fn handle_client(stream: &mut TcpStream) -> Result<(), io::Error> {
     let _fragment_request = Server::get_work_request(stream)?;
 
     Server::send_work(stream)?;
+
+    let fragment_result_result = Server::get_work_done(stream);
+
+    let data: Vec<u8>;
+    let fragment_result = match fragment_result_result {
+        Ok((fragment, data_in)) => {
+            data = data_in;
+            fragment
+        },
+        Err(err) => return Err(err),
+    };
+    
 
     Ok(())
 }
