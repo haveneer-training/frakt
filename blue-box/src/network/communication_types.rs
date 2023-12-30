@@ -38,7 +38,7 @@ pub struct U8Data {
     pub count: u32
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy)]
 pub struct Complex {
     pub re: f64,
     pub im: f64
