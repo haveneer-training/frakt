@@ -1,8 +1,8 @@
 use log::warn;
 
-use crate::network::communication_types::{FragmentTask, FragmentResult};
+use crate::network::communication_types::{FragmentResult, FragmentTask};
 
-use super::fractal_types::{JuliaDescriptor, FreactalDescriptor};
+use super::fractal_types::{FractalDescriptor, JuliaDescriptor};
 
 impl JuliaDescriptor {
     pub fn run(&self) {
@@ -16,14 +16,17 @@ impl JuliaDescriptor {
 pub struct Fractal {}
 
 impl Fractal {
-
-    pub fn run(fragment_task: &FragmentTask, fragment_result: &mut FragmentResult, data: &mut Vec<u8>){
+    pub fn run(
+        fragment_task: &FragmentTask,
+        fragment_result: &mut FragmentResult,
+        data: &mut Vec<u8>,
+    ) {
         match &fragment_task.fractal {
-            FreactalDescriptor::Julia(julia) => julia.run(),
-            FreactalDescriptor::Mandelbrot(mandelbrot) => todo!(),
-            FreactalDescriptor::IteratedSinZ(iter) => todo!(),
-            FreactalDescriptor::NewtonRaphsonZ3(newton) => todo!(),
-            FreactalDescriptor::NewtonRaphsonZ4(newton) => todo!(),
+            FractalDescriptor::Julia(julia) => julia.run(),
+            FractalDescriptor::Mandelbrot(mandelbrot) => todo!(),
+            FractalDescriptor::IteratedSinZ(iter) => todo!(),
+            FractalDescriptor::NewtonRaphsonZ3(newton) => todo!(),
+            FractalDescriptor::NewtonRaphsonZ4(newton) => todo!(),
         }
     }
 }
