@@ -1,10 +1,6 @@
 [workspace]
 members = [
-    "jerry-smith",
-    "mr-meeseeks",
-    "blue-box"
 ]
 resolver = "2"
 default-members = [
-    "mr-meeseeks"
 ]
