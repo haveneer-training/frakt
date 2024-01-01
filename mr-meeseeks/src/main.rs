@@ -69,21 +69,14 @@ fn main(){
             offset: fragment_task.id.offset, 
             count: fragment_task.resolution.nx as u32 * fragment_task.resolution.ny as u32
         };
-        let fragment_result : FragmentResult = FragmentResult::new(
+        let mut fragment_result : FragmentResult = FragmentResult::new(
             fragment_task.id.clone(),
             fragment_task.resolution.clone(),
             fragment_task.range.clone(),
             pixels
         );
 
-        // Fractal::run(&fragment_task, &mut fragment_result, &mut data);
-
-        let fake_zn: f32 = 0.018979378;
-        let fake_data: f32 = 1.0;
-        data.write_all(&fake_zn.to_be_bytes());
-        data.write_all(&fake_data.to_be_bytes());
-
-        debug!("fake data = {data:?}");
+        Fractal::run(&fragment_task, &mut fragment_result, &mut data);
 
         fragment_task = match client.send_work_done(fragment_result, &mut data){
             Ok(fragment) => fragment,
@@ -94,7 +87,7 @@ fn main(){
                         fragment
                     },
                     Err(_) => {
-                        error!("Can't get new work from the server");
+                        error!("The server must be switched off");
                         process::exit(1);
                     }
 
