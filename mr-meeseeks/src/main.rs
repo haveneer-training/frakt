@@ -14,7 +14,7 @@ use utils::start_util;
 #[command(author, version, about, long_about = None)]
 struct Args {
     /// Specify server address
-    #[arg(long, default_value = "127.0.0.1")]
+    #[arg(long, default_value = "localhost")]
     server_address: String,
 
     /// Specify server port
@@ -67,7 +67,7 @@ fn main(){
     while true{
         let pixels = PixelData{
             offset: fragment_task.id.offset, 
-            count: fragment_task.resolution.nx as u32 * fragment_task.resolution.ny as u32
+            count: fragment_task.resolution.nx as u32 * fragment_task.resolution.ny as u32 
         };
         let fragment_result : FragmentResult = FragmentResult::new(
             fragment_task.id.clone(),
@@ -76,17 +76,18 @@ fn main(){
             pixels
         );
 
-        // Fractal::run(&fragment_task, &mut fragment_result, &mut data);
-
-        let fake_zn: f32 = 0.018979378;
-        let fake_data: f32 = 1.0;
-        data.write_all(&fake_zn.to_be_bytes());
-        data.write_all(&fake_data.to_be_bytes());
-
-        debug!("fake data = {data:?}");
+        Fractal::run(&fragment_task, &fragment_result, &mut data);
+        
+        // for &i in &data{
+        //     debug!("{:02x}", i);
+        // }
+        // println!("Size {}", data.len());
 
         fragment_task = match client.send_work_done(fragment_result, &mut data){
-            Ok(fragment) => fragment,
+            Ok(fragment) => {
+                // panic!();
+                fragment
+            },
             Err(_) => {
                 match client.ask_for_work(&args.worker_name, args.max_work) {
                     Ok((fragment, new_data)) => {
@@ -94,10 +95,9 @@ fn main(){
                         fragment
                     },
                     Err(_) => {
-                        error!("Can't get new work from the server");
+                        error!("The server must be switched off");
                         process::exit(1);
                     }
-
                 }
             }
         };

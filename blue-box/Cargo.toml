@@ -10,3 +10,4 @@ cmplx_nbr = { version = "0.1.0", path = "../cmplx_nbr" }
 serde = { version = "1.0.193", features = ["derive"] }
 serde_json = "1.0.108"
 log = "0.4.20"
+image = "0.24.7"

@@ -1,6 +1,7 @@
 use std::{net::TcpStream, io};
 
 use blue_box::{models::network::Network, types::protocols::{FragmentTask, FragmentRequest, Fragment, FragmentResult}};
+use log::debug;
 #[derive(Debug)]
 pub struct Client {
     network: Network
@@ -53,7 +54,9 @@ impl Client {
 
         let enum_network = Fragment::FragmentResult(fragment_result);
 
-        Network::send_message(&mut stream, enum_network, data)?;
+        let sent_message = Network::send_message(&mut stream, enum_network, data)?;
+        debug!("Sent message : {sent_message}");
+
         let fragment = match Network::read_message(&mut stream) {
             Ok((Fragment::FragmentTask(fragment_task), new_data)) => {
                 *data = new_data;
