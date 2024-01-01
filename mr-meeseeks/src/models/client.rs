@@ -1,14 +1,12 @@
 use std::{net::TcpStream, io};
 
-use blue_box::{models::network::Network, types::protocols::{FragmentTask, FragmentRequest, Fragment, FragmentResult}, utils::json};
-use log::{debug, warn};
+use blue_box::{models::network::Network, types::protocols::{FragmentTask, FragmentRequest, Fragment, FragmentResult}};
 #[derive(Debug)]
 pub struct Client {
     network: Network
 }
 
 impl Client {
-
     pub fn new(server_address: String, port: String) -> Client {
         Client { 
             network: Network::new(server_address, port)
@@ -17,20 +15,20 @@ impl Client {
 
     pub fn ask_for_work(
         &self,
-        worker_name: String,
+        worker_name: &str,
         maximal_work_load: u32,
     ) -> Result<(FragmentTask, Vec<u8>), io::Error> {
         let mut stream = self.connect_to_server()?;
 
         let work_request = FragmentRequest {
-            worker_name,
+            worker_name: worker_name.to_string(),
             maximal_work_load,
         };
 
         let enum_network = Fragment::FragmentRequest(work_request);
 
-        let data_tmp: Vec<u8> = Vec::new();
-        Network::send_message(&mut stream, enum_network, data_tmp)?;
+        let mut data_tmp: Vec<u8> = Vec::new();
+        Network::send_message(&mut stream, enum_network, &mut data_tmp)?;
 
         let (fragment, data) = match Network::read_message(&mut stream) {
             Ok((Fragment::FragmentTask(fragment_task), data)) => (fragment_task, data),
@@ -50,14 +48,17 @@ impl Client {
         Ok((fragment, data))
     }
 
-    pub fn send_work_done(&self, fragment_result: FragmentResult, data: Vec<u8>) -> Result<(FragmentTask, Vec<u8>), io::Error> {
+    pub fn send_work_done(&self, fragment_result: FragmentResult, data: &mut Vec<u8>) -> Result<FragmentTask, io::Error> {
         let mut stream = self.connect_to_server()?;
 
         let enum_network = Fragment::FragmentResult(fragment_result);
 
         Network::send_message(&mut stream, enum_network, data)?;
-        let (fragment, data) = match Network::read_message(&mut stream) {
-            Ok((Fragment::FragmentTask(fragment_task), data)) => (fragment_task, data),
+        let fragment = match Network::read_message(&mut stream) {
+            Ok((Fragment::FragmentTask(fragment_task), new_data)) => {
+                *data = new_data;
+                fragment_task
+            },
             Ok((Fragment::FragmentRequest(_), _ )) => return Err(io::Error::new(
                 io::ErrorKind::UnexpectedEof,
                 "Not the right response type returned FragmentRequest",
@@ -71,7 +72,7 @@ impl Client {
 
         Network::close_connection(&mut stream);
 
-        Ok((fragment, data))
+        Ok(fragment)
     }
 
     fn connect_to_server(&self) -> Result<TcpStream, io::Error> {

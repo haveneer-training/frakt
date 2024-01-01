@@ -22,7 +22,7 @@ impl Network  {
     pub fn send_message(
         stream: &mut TcpStream,
         fragment: Fragment,
-        data: Vec<u8>
+        data: &Vec<u8>
     ) -> Result<String , io::Error> {
 
         let json_message = json::to_string(&fragment)?;
@@ -34,7 +34,7 @@ impl Network  {
         stream.write_all(&total_message_size.to_be_bytes())?;
         stream.write_all(&json_message_size.to_be_bytes())?;
         stream.write_all(&json_message.as_bytes())?;
-        stream.write_all(&data)?;
+        stream.write_all(data)?;
 
         Ok(json_message)
     }
