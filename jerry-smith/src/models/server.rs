@@ -59,8 +59,8 @@ impl Server {
 
         let network_test_fragment = Fragment::FragmentTask(test_fragment_task);
 
-        let data_tmp: Vec<u8> = Vec::new();
-        Network::send_message(stream, network_test_fragment, data_tmp)?;
+        let mut data_tmp: Vec<u8> = Vec::new();
+        Network::send_message(stream, network_test_fragment, &mut data_tmp)?;
 
         Ok(())
     }
