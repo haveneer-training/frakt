@@ -6,13 +6,13 @@ pub struct U8Data {
     pub count: u32,
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy)]
 pub struct Point {
     pub x: f64,
     pub y: f64,
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy)]
 pub struct Range {
     pub min: Point,
     pub max: Point,
