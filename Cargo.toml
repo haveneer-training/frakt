@@ -1,6 +1,13 @@
 [workspace]
 members = [
+    "mr-meeseeks",
+    "cmplx_nbr",
+    "blue-box",
+    "jerry-smith"
 ]
+
 resolver = "2"
+
 default-members = [
+    "mr-meeseeks"
 ]
