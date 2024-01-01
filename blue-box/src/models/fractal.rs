@@ -1,6 +1,7 @@
 use std::io::Write;
 
 use cmplx_nbr::Complex;
+use image::{ImageBuffer, Rgb};
 use log::{warn, debug, error};
 
 use crate::types::{
@@ -26,18 +27,25 @@ impl JuliaDescriptor {
     }
 
     fn make_image(&self, resolution: &Resolution, max: &Point, min: &Point, max_iteration: &u32, data: &mut Vec<u8>) {
-        for offset in 0..(resolution.nx as u32 * resolution.ny as u32) {
-            let x = offset % resolution.nx as u32;
-            let y = offset / resolution.nx as u32;
+        let width = resolution.nx as u32;
+        let height = resolution.ny as u32;
+
+        let mut image_buffer: ImageBuffer<Rgb<u8>, Vec<u8>> = ImageBuffer::new(width, height);
+
+        for (x, y, _pixel) in image_buffer.enumerate_pixels_mut() {
+
+            // debug!("x->{}; y->{}", x, y);
 
             let mapped_x = min.x + (x as f64 / resolution.nx as f64) * (max.x - min.x);
             let mapped_y = min.y + (y as f64 / resolution.ny as f64) * (max.y - min.y);
 
             let (zn , count) = self.make_pixel(mapped_x, mapped_y, max_iteration);
 
+            // debug!("zn => {:?}", zn);
             if let Err(_) = data.write_all(&zn.to_be_bytes()){
                 error!("Can't add to data")
             }
+            // debug!("count => {:?}", count);
             if let Err(_) = data.write_all(&count.to_be_bytes()){
                 error!("Can't add to data")
             }
@@ -64,7 +72,7 @@ pub struct Fractal {}
 impl Fractal {
     pub fn run(
         fragment_task: &FragmentTask,
-        fragment_result: &mut FragmentResult,
+        fragment_result: &FragmentResult,
         data: &mut Vec<u8>,
     ) {
         match &fragment_task.fractal {
