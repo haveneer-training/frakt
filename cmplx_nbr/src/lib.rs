@@ -1,6 +1,14 @@
+mod complex_test;
+
 use std::ops;
 
-use crate::network::communication_types::Complex;
+use serde::{Deserialize, Serialize};
+
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy)]
+pub struct Complex {
+    pub re: f64,
+    pub im: f64,
+}
 
 impl Complex {
     pub fn new(re: f64, im: f64) -> Complex {
@@ -30,3 +38,4 @@ impl ops::Mul for Complex {
         Self { re, im }
     }
 }
+

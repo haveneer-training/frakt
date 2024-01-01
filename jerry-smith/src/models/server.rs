@@ -1,30 +1,18 @@
-use std::{
-    io,
-    net::{TcpListener, TcpStream},
-};
+use std::{net::{TcpListener, TcpStream}, io};
 
-use crate::{
-    fractal::fractal_types::{FractalDescriptor, JuliaDescriptor},
-    utils::json,
-};
-
-use super::{
-    communication_types::{
-        Complex, FragmentRequest, FragmentResult, FragmentTask, NetworkProtocoles, Point, Range,
-        Resolution, U8Data,
-    },
-    network::Network,
-};
+use blue_box::{models::network::Network, types::{protocols::{FragmentRequest, Fragment, FragmentTask, FragmentResult}, desc::{U8Data, Resolution, Range, Point}, fractal_type::{FractalDescriptor, JuliaDescriptor}}, utils::json};
+use cmplx_nbr::Complex;
 
 #[derive(Debug)]
 pub struct Server {
-    network: Network,
+    network: Network
 }
 
 impl Server {
-    pub fn new(server_address: String, port: String) -> Server {
+
+    pub fn new(server_address: String, port: String) -> Server{
         Server {
-            network: Network::new(server_address, port),
+            network: Network::new(server_address, port)
         }
     }
 
@@ -36,12 +24,12 @@ impl Server {
         stream: &mut TcpStream,
     ) -> Result<(FragmentRequest, Vec<u8>), io::Error> {
         match Network::read_message(stream) {
-            Ok((NetworkProtocoles::FragmentRequest(fragment), data)) => Ok((fragment, data)),
-            Ok((NetworkProtocoles::FragmentTask(_), _)) => Err(io::Error::new(
+            Ok((Fragment::FragmentRequest(fragment), data)) => Ok((fragment, data)),
+            Ok((Fragment::FragmentTask(_), _)) => Err(io::Error::new(
                 io::ErrorKind::UnexpectedEof,
                 "Did not send a job request",
             )),
-            Ok((NetworkProtocoles::FragmentResult(_), _)) => Err(io::Error::new(
+            Ok((Fragment::FragmentResult(_), _)) => Err(io::Error::new(
                 io::ErrorKind::UnexpectedEof,
                 "Did not send a job request",
             )),
@@ -57,7 +45,7 @@ impl Server {
             },
             fractal: {
                 FractalDescriptor::Julia(JuliaDescriptor {
-                    c: Complex { re: 13.2, im: 13.2 },
+                    c: Complex{ re: 13.2, im: 13.2 },
                     divergence_threshold_square: 13.4,
                 })
             },
@@ -69,27 +57,27 @@ impl Server {
             },
         };
 
-        let network_test_fragment = NetworkProtocoles::FragmentTask(test_fragment_task);
-        let network_test_fragment_serialized = json::to_string(&network_test_fragment)?;
+        let network_test_fragment = Fragment::FragmentTask(test_fragment_task);
 
         let data_tmp: Vec<u8> = Vec::new();
-        Network::send_message(stream, network_test_fragment_serialized, data_tmp)?;
+        Network::send_message(stream, network_test_fragment, data_tmp)?;
 
         Ok(())
     }
 
     pub fn get_work_done(stream: &mut TcpStream) -> Result<(FragmentResult, Vec<u8>), io::Error> {
         match Network::read_message(stream) {
-            Ok((NetworkProtocoles::FragmentResult(fragment), data)) => Ok((fragment, data)),
-            Ok((NetworkProtocoles::FragmentTask(_), _)) => Err(io::Error::new(
+            Ok((Fragment::FragmentResult(fragment), data)) => Ok((fragment, data)),
+            Ok((Fragment::FragmentTask(_), _)) => Err(io::Error::new(
                 io::ErrorKind::UnexpectedEof,
                 "Did not send a job done",
             )),
-            Ok((NetworkProtocoles::FragmentRequest(_), _)) => Err(io::Error::new(
+            Ok((Fragment::FragmentRequest(_), _)) => Err(io::Error::new(
                 io::ErrorKind::UnexpectedEof,
                 "Did not send a job done",
             )),
             Err(err) => Err(err),
         }
     }
+
 }

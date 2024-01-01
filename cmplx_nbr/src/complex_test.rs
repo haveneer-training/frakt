@@ -1,6 +1,6 @@
 #![cfg(test)]
 
-use crate::network::communication_types::Complex;
+use crate::Complex;
 
 #[test]
 fn test_add() {

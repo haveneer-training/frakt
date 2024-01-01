@@ -1,27 +1,18 @@
-use log::{debug, trace, info, warn};
+use std::{net::{TcpStream, Shutdown}, io::{self, Write, Read}};
 
-use std::{
-    io::{self, Read, Write},
-    net::TcpStream,
-};
+use log::{debug, warn};
 
-use crate::utils::json;
-
-use super::communication_types::NetworkProtocoles;
+use crate::{types::protocols::Fragment, utils::json};
 
 #[derive(Debug)]
 pub struct Network {
     server_address: String,
-    port: String,
+    port: String
 }
 
-impl Network {
-
-    pub fn new(server_address: String, port: String) -> Network {
-        Network {
-            server_address,
-            port,
-        }
+impl Network  {
+    pub fn new(server_address: String, port: String) -> Network{
+        Network {server_address, port}
     }
 
     pub fn get_fulladdress(&self) -> String {
@@ -30,9 +21,12 @@ impl Network {
 
     pub fn send_message(
         stream: &mut TcpStream,
-        json_message: String,
-        data: Vec<u8>,
-    ) -> Result<(), io::Error> {
+        fragment: Fragment,
+        data: Vec<u8>
+    ) -> Result<String , io::Error> {
+
+        let json_message = json::to_string(&fragment)?;
+
         let json_message_size = json_message.len() as u32;
         let data_message_size = data.len() as u32;
         let total_message_size: u32 = json_message_size + data_message_size;
@@ -42,12 +36,10 @@ impl Network {
         stream.write_all(&json_message.as_bytes())?;
         stream.write_all(&data)?;
 
-        debug!("Sent message : {json_message}", );
-
-        Ok(())
+        Ok(json_message)
     }
 
-    pub fn read_message(stream: &mut TcpStream) -> Result<(NetworkProtocoles, Vec<u8>), io::Error> {
+    pub fn read_message(stream: &mut TcpStream) -> Result<(Fragment , Vec<u8>), io::Error> {
         let mut total_len_buf = [0; 4];
         match stream.read_exact(&mut total_len_buf){
             Ok(_) => debug!("Start getting something"),
@@ -92,9 +84,13 @@ impl Network {
         let mut data = vec![0_u8; data_message_size as usize];
         stream.read(&mut data)?;
 
-        debug!("Data size: {:?}", data.len());
+        // debug!("Data size: {:?}", data.len());
         // let data = String::from_utf8_lossy(&data_len_buf);
 
         Ok((fragment, data))
+    }
+
+    pub fn close_connection(stream: &mut TcpStream) {
+        stream.shutdown(Shutdown::Both);
     }
 }

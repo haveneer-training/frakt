@@ -1,12 +1,14 @@
+mod models;
 mod utils;
 
-use blue_box::{network::{client::Client, communication_types::{FragmentTask, FragmentResult, PixelData}}, fractal::fractal::Fractal};
+use std::{process, io::Write};
+
+use blue_box::{types::{protocols::FragmentResult, desc::PixelData}, models::fractal::Fractal};
 use clap::Parser;
 use env_logger::Env;
-use log::{error, debug, info, warn};
-use std::{io, process};
-
-use crate::utils::start_util;
+use log::{warn, info, debug};
+use models::client::Client;
+use utils::start_util;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -28,9 +30,9 @@ struct Args {
     gpu_use: bool,
 }
 
-fn main() -> io::Result<()> {
+fn main(){
     start_util::start_message();
-    
+
     env_logger::Builder::from_env(Env::default().default_filter_or("debug")).init();
     // INFO: Log levels: 
     //  error
@@ -41,52 +43,44 @@ fn main() -> io::Result<()> {
 
     let args = Args::parse();
 
-    let server = Client::new(args.server_address, args.port);
+    let client = Client::new(args.server_address, args.port);
 
-    let stream_result = server.connect_to_server();
-
-    let mut stream = match stream_result {
-        Ok(rep) => rep,
+    let fragment_task_result = client.ask_for_work("Groupe 7".to_string(), 100);
+    let (fragment_task, mut data) = match fragment_task_result {
+        Ok((fragment, data)) => (fragment, data),
         Err(err) => {
-            // TODO: Try serveral times
-            error!("The server unreachable! {}", err);
+            warn!("There was a probleme connecting to the server ... {err}");
             process::exit(1)
         }
     };
-
-    let mut data: Vec<u8> = Vec::new();
-    let fractal_task_request = Client::ask_for_work(&mut stream, "Groupe 7".to_string(), 100);
-    let fragment_task: FragmentTask = match fractal_task_request {
-        Ok((fragment, data_in)) => {
-            // INFO: I don't know if the data returned by the server at the same time as the fragment_task is important.
-            // data = data_in;
-            fragment
-        },
-        Err(err) => {
-            error!("Something went wrong: {}", err);
-            process::exit(1)
-        }
-    };
-
-    // INFO: From here, you have everything you need to calculate the fractals
-
-    let mut fragment_result: FragmentResult = FragmentResult {
-        id: fragment_task.id.clone(),
-        resolution: fragment_task.resolution.clone(),
-        range: fragment_task.range.clone(),
-        pixels: PixelData {
-            offset: 0_u32,
-            count: 0_u32
-        }
-    };
-
-    Fractal::run(&fragment_task, &mut fragment_result, &mut data);
     
-    let response = Client::send_work_done(&mut stream, fragment_result, data);
-    match response {
-        Ok(_) => info!("Result sent to server"),
-        Err(err) => warn!("Can't send result to server: {err}")
-    }
+    // TODO: From here, you have everything you need to calculate the fractals
+    
 
-    Ok(())
+    let pixels = PixelData{
+        offset: fragment_task.id.offset, 
+        count: fragment_task.resolution.nx as u32 * fragment_task.resolution.ny as u32
+    };
+    let mut fragment_result : FragmentResult = FragmentResult::new(
+        fragment_task.id.clone(),
+        fragment_task.resolution.clone(),
+        fragment_task.range.clone(),
+        pixels
+    );
+
+    // Fractal::run(&fragment_task, &mut fragment_result, &mut data);
+    
+    let fake_zn: f32 = 0.018979378;
+    let fake_data: f32 = 1.0;
+    data.write_all(&fake_zn.to_be_bytes());
+    data.write_all(&fake_data.to_be_bytes());
+
+    debug!("fake data = {data:?}");
+
+    // TODO: send_work_done return a new FragmentTask
+    // need to use it AND set the loop
+    match client.send_work_done(fragment_result, data){
+        Ok(_) => info!("Result sent to server"),
+        Err(err) => warn!("There was a problem sendin the result to the server ... {err}"),
+    };
 }

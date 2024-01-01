@@ -1,9 +1,10 @@
-use blue_box::network::communication_types::FragmentResult;
-use blue_box::network::server::Server;
+mod models;
+
+use std::{process, net::TcpStream, io};
+
 use clap::Parser;
-use log::{info, warn, error};
-use std::net::TcpStream;
-use std::{io, process};
+use log::{error, info, warn};
+use models::server::Server;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -21,18 +22,18 @@ struct Args {
     debug: bool,
 }
 
-fn main() -> io::Result<()> {
-
+fn main() {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("debug")).init();
 
     let args = Args::parse();
 
     let server = Server::new(args.server_address, args.port);
     let listener_result = server.start_server();
+
     let listener = match listener_result {
         Ok(r) => r,
-        Err(error) => {
-            error!("Serevr failed to start! {}", error);
+        Err(err) => {
+            error!("Server failed to start ... \n{err}");
             process::exit(1);
         }
     };
@@ -49,7 +50,6 @@ fn main() -> io::Result<()> {
         }
     }
 
-    Ok(())
 }
 
 fn handle_client(stream: &mut TcpStream) -> Result<(), io::Error> {
@@ -61,14 +61,14 @@ fn handle_client(stream: &mut TcpStream) -> Result<(), io::Error> {
 
     let fragment_result_result = Server::get_work_done(stream);
 
-    let data: Vec<u8>;
-    let fragment_result = match fragment_result_result {
-        Ok((fragment, data_in)) => {
-            data = data_in;
-            fragment
-        },
-        Err(err) => return Err(err),
-    };
+    // let data: Vec<u8>;
+    // let fragment_result = match fragment_result_result {
+    //     Ok((fragment, data_in)) => {
+    //         data = data_in;
+    //         fragment
+    //     },
+    //     Err(err) => return Err(err),
+    // };
     
 
     Ok(())
