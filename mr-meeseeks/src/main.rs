@@ -62,21 +62,8 @@ fn main(){
         }
     };
     
-    // TODO: From here, you have everything you need to calculate the fractals
-    
     while true{
-        let pixels = PixelData{
-            offset: fragment_task.id.offset, 
-            count: fragment_task.resolution.nx as u32 * fragment_task.resolution.ny as u32 
-        };
-        let fragment_result : FragmentResult = FragmentResult::new(
-            fragment_task.id.clone(),
-            fragment_task.resolution.clone(),
-            fragment_task.range.clone(),
-            pixels
-        );
-
-        Fractal::run(&fragment_task, &fragment_result, &mut data);
+        let fragment_result = Fractal::run(&fragment_task, &mut data);
         
         // for &i in &data{
         //     debug!("{:02x}", i);
@@ -96,7 +83,7 @@ fn main(){
                     },
                     Err(_) => {
                         error!("The server must be switched off");
-                        process::exit(1);
+                        return ();
                     }
                 }
             }
