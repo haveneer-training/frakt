@@ -1,12 +1,12 @@
 mod models;
 mod utils;
 
-use std::process;
+use std::{process, io::Write};
 
 use blue_box::{types::{protocols::FragmentResult, desc::PixelData}, models::fractal::Fractal};
 use clap::Parser;
 use env_logger::Env;
-use log::{warn, info};
+use log::{warn, info, debug};
 use models::client::Client;
 use utils::start_util;
 
@@ -68,8 +68,17 @@ fn main(){
         pixels
     );
 
-    Fractal::run(&fragment_task, &mut fragment_result, &mut data);
+    // Fractal::run(&fragment_task, &mut fragment_result, &mut data);
+    
+    let fake_zn: f32 = 0.018979378;
+    let fake_data: f32 = 1.0;
+    data.write_all(&fake_zn.to_be_bytes());
+    data.write_all(&fake_data.to_be_bytes());
 
+    debug!("fake data = {data:?}");
+
+    // TODO: send_work_done return a new FragmentTask
+    // need to use it AND set the loop
     match client.send_work_done(fragment_result, data){
         Ok(_) => info!("Result sent to server"),
         Err(err) => warn!("There was a problem sendin the result to the server ... {err}"),

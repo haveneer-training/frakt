@@ -12,9 +12,9 @@ use super::{
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub enum Fragment {
-    Request(FragmentRequest),
-    Task(FragmentTask),
-    Result(FragmentResult),
+    FragmentRequest(FragmentRequest),
+    FragmentTask(FragmentTask),
+    FragmentResult(FragmentResult),
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]

@@ -24,12 +24,12 @@ impl Server {
         stream: &mut TcpStream,
     ) -> Result<(FragmentRequest, Vec<u8>), io::Error> {
         match Network::read_message(stream) {
-            Ok((Fragment::Request(fragment), data)) => Ok((fragment, data)),
-            Ok((Fragment::Task(_), _)) => Err(io::Error::new(
+            Ok((Fragment::FragmentRequest(fragment), data)) => Ok((fragment, data)),
+            Ok((Fragment::FragmentTask(_), _)) => Err(io::Error::new(
                 io::ErrorKind::UnexpectedEof,
                 "Did not send a job request",
             )),
-            Ok((Fragment::Result(_), _)) => Err(io::Error::new(
+            Ok((Fragment::FragmentResult(_), _)) => Err(io::Error::new(
                 io::ErrorKind::UnexpectedEof,
                 "Did not send a job request",
             )),
@@ -57,7 +57,7 @@ impl Server {
             },
         };
 
-        let network_test_fragment = Fragment::Task(test_fragment_task);
+        let network_test_fragment = Fragment::FragmentTask(test_fragment_task);
 
         let data_tmp: Vec<u8> = Vec::new();
         Network::send_message(stream, network_test_fragment, data_tmp)?;
@@ -67,12 +67,12 @@ impl Server {
 
     pub fn get_work_done(stream: &mut TcpStream) -> Result<(FragmentResult, Vec<u8>), io::Error> {
         match Network::read_message(stream) {
-            Ok((Fragment::Result(fragment), data)) => Ok((fragment, data)),
-            Ok((Fragment::Task(_), _)) => Err(io::Error::new(
+            Ok((Fragment::FragmentResult(fragment), data)) => Ok((fragment, data)),
+            Ok((Fragment::FragmentTask(_), _)) => Err(io::Error::new(
                 io::ErrorKind::UnexpectedEof,
                 "Did not send a job done",
             )),
-            Ok((Fragment::Request(_), _)) => Err(io::Error::new(
+            Ok((Fragment::FragmentRequest(_), _)) => Err(io::Error::new(
                 io::ErrorKind::UnexpectedEof,
                 "Did not send a job done",
             )),
