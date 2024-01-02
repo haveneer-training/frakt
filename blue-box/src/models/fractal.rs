@@ -31,7 +31,7 @@ impl Fractal {
 
         match &fragment_task.fractal {
             FractalDescriptor::Julia(julia) => julia.make_image(&fragment_task, data),
-            FractalDescriptor::Mandelbrot(_mandelbrot) => todo!(),
+            FractalDescriptor::Mandelbrot(mandelbrot) => mandelbrot.make_image(&fragment_task, data),
             FractalDescriptor::IteratedSinZ(_iter) => todo!(),
             FractalDescriptor::NewtonRaphsonZ3(_newton) => todo!(),
             FractalDescriptor::NewtonRaphsonZ4(_newton) => todo!(),
