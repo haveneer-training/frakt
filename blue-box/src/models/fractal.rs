@@ -18,7 +18,7 @@ impl Fractal {
         data: &mut Vec<u8>
     ) -> FragmentResult {
         let pixels = PixelData{
-            offset: fragment_task.id.offset, 
+            offset: fragment_task.id.count, 
             count: fragment_task.resolution.nx as u32 * fragment_task.resolution.ny as u32 
         };
 
