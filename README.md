@@ -11,7 +11,10 @@ indépendants et donc parfaitement calculables en parallèles par un réseau de 
 
 ## Errata / changes
 
-* Le calcul spécifique à [Newton Raphson Z^n](NewtonRaphsonZn.md) des champs `zn` et `count` de `PixelIntensity` a été modifié pour que `count`
+* Précision du calcul de l'attribut `zn` de `PixelIntensity` pour chaque fractale.
+
+* Le calcul spécifique à [Newton Raphson Z^n](NewtonRaphsonZn.md) des champs `zn` et `count` de `PixelIntensity` a été
+  modifié pour que `count`
   reste plus classique et `zn` plus *utile* pour cette courbe où $|z_n| converge naturellement vers 1.
 
 * `max_iteration` a été promu en `u32` (pour plus de détails)
@@ -264,9 +267,11 @@ Vous trouverez le détail de *FractalDescriptor* dans la description de chaque f
 | `PixelIntensity` | `zn: f32`<br/>`count: f32`     |
 
 Un objet de `PixelIntensity` correspond à la valeur donnée par la fonction *fractale* choisie pour un pixel.
-Sauf consigne particulière pour certaines fractales, L'attribut `zn` correspond au module en fin d'itération et `count`
-au nombre d'itérations effectués divisé par le nombre maximum d'itérations (donc 0 ≤ `count` ≤ 1; `count` vaut 1 si le
-calcul n'a pas convergé).
+L'attribut `count` correspond au nombre d'itérations effectuées divisé par le nombre maximum d'itérations (donc
+0 ≤ `count` ≤ 1; `count` vaut 1 si le calcul n'a pas convergé).
+
+L'attribut `zn` est plus fin et est défini au cas par cas (voir chacune des courbes). Grosso modo, il est assimilable à
+$|z_n|$ (module de la dernière itération) même si pour des raisons esthétiques, il peut être quelque peu adapté.
 
 Les champs de `PixelIntensity` sont sérialisés en un flux octets (avec
 encodage Big Endian) dans l'ordre `zn` puis `count` et les pixels d'un `FragmentResult` sont sérialisés successivement

@@ -5,6 +5,10 @@ pixel exprimé sous la forme d'un nombre complexe dans l'espace physique défini
 
 On décide ici d'arrêter les itérations dès que $|z_n|^2 > \eta$ où $\eta$ correspond au `divergence_threshold_square`.
 
+Pour chaque `PixelIntensity`:
+* `zn` vaut $|z_n|^2 / \eta$,
+* `count` vaut le nombre d'itérations effectuées divisé par `max_iteration`.
+
 | Nom du type       | Description du type                                 |
 |-------------------|-----------------------------------------------------|
 | `JuliaDescriptor` | `c: Complex`<br/>`divergence_threshold_square: f64` |
