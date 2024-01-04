@@ -40,7 +40,7 @@ fn main(){
         //     debug!("{:02x}", i);
         // }
         // println!("Size {}", data.len());
-
+            //change la variable data
         fragment_task = match client.send_work_done(fragment_result, &mut data){
             Ok(fragment) => {
                 // panic!();

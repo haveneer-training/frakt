@@ -13,7 +13,7 @@ impl Client {
             network: Network::new(server_address, port)
         }
     }
-
+ // 17 a 21 c la signature
     pub fn ask_for_work(
         &self,
         worker_name: &str,
