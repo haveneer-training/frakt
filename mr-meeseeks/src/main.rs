@@ -1,10 +1,12 @@
 mod models;
 mod utils;
+mod config;
 
 use std::{process, io::Write};
 
 use blue_box::{types::{protocols::FragmentResult, desc::PixelData}, models::fractal::Fractal};
 use clap::Parser;
+use config::Config;
 use env_logger::Env;
 use log::{warn, info, debug, error};
 use models::client::Client;
@@ -49,44 +51,47 @@ fn main(){
     //  debug
     //  trace
 
-    let args = Args::parse();
+    let config = Config::new();
 
-    let client = Client::new(args.server_address, args.port);
-
-    let fragment_task_result = client.ask_for_work(&args.worker_name, args.max_work);
-    let (mut fragment_task, mut data) = match fragment_task_result {
-        Ok((fragment, data)) => (fragment, data),
-        Err(err) => {
-            warn!("There was a probleme connecting to the server ... {err}");
-            process::exit(1)
-        }
-    };
-    
-    while true{
-        let fragment_result = Fractal::run(&fragment_task, &mut data);
-        
-        // for &i in &data{
-        //     debug!("{:02x}", i);
-        // }
-        // println!("Size {}", data.len());
-
-        fragment_task = match client.send_work_done(fragment_result, &mut data){
-            Ok(fragment) => {
-                // panic!();
-                fragment
-            },
-            Err(_) => {
-                match client.ask_for_work(&args.worker_name, args.max_work) {
-                    Ok((fragment, new_data)) => {
-                        data = new_data;
-                        fragment
-                    },
-                    Err(_) => {
-                        error!("The server must be switched off");
-                        return ();
-                    }
-                }
-            }
-        };
-    }
+    println!("stuct -> {:#?}", config);
+    // let args = Args::parse();
+    //
+    // let client = Client::new(args.server_address, args.port);
+    //
+    // let fragment_task_result = client.ask_for_work(&args.worker_name, args.max_work);
+    // let (mut fragment_task, mut data) = match fragment_task_result {
+    //     Ok((fragment, data)) => (fragment, data),
+    //     Err(err) => {
+    //         warn!("There was a probleme connecting to the server ... {err}");
+    //         process::exit(1)
+    //     }
+    // };
+    // 
+    // while true{
+    //     let fragment_result = Fractal::run(&fragment_task, &mut data);
+    //     
+    //     // for &i in &data{
+    //     //     debug!("{:02x}", i);
+    //     // }
+    //     // println!("Size {}", data.len());
+    //
+    //     fragment_task = match client.send_work_done(fragment_result, &mut data){
+    //         Ok(fragment) => {
+    //             // panic!();
+    //             fragment
+    //         },
+    //         Err(_) => {
+    //             match client.ask_for_work(&args.worker_name, args.max_work) {
+    //                 Ok((fragment, new_data)) => {
+    //                     data = new_data;
+    //                     fragment
+    //                 },
+    //                 Err(_) => {
+    //                     error!("The server must be switched off");
+    //                     return ();
+    //                 }
+    //             }
+    //         }
+    //     };
+    // }
 }
