@@ -1,5 +1,5 @@
 [server]
-server_address = "locahost"
+server_address = "localhost"
 port = "8787"
 
 [worker]
