@@ -1,15 +1,13 @@
 mod models;
 mod utils;
-mod config;
 
 use std::process;
 
 use blue_box::models::fractal::Fractal;
-use config::Config;
 use env_logger::Env;
 use log::{warn, error};
 use models::client::Client;
-use utils::start_util;
+use utils::{start_util, config::Config};
 
 fn main(){
     start_util::start_message();

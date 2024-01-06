@@ -13,3 +13,4 @@ blue-box = { version = "0.1.0", path = "../blue-box" }
 env_logger = "0.10.1"
 log = "0.4.20"
 cmplx_nbr = { version = "0.1.0", path = "../cmplx_nbr" }
+toml = "0.8.8"

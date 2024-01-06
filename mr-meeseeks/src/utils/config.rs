@@ -1,5 +1,5 @@
 use std::{io, fs};
-use log::{warn, debug};
+use log::{warn, debug, trace};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug)]
@@ -48,6 +48,8 @@ impl Config {
                 Err(_) => {},
             }
         }
+
+        trace!("File values {content}");
 
         let config_toml_result = toml::from_str(&content);
         let config_toml = match config_toml_result {

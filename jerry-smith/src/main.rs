@@ -1,33 +1,18 @@
 mod models;
+mod utils;
 
 use std::{process, net::TcpStream, io};
 
-use clap::Parser;
 use log::{error, info, warn};
 use models::server::Server;
-
-#[derive(Parser, Debug)]
-#[command(author, version, about, long_about = None)]
-struct Args {
-    /// Specify address
-    #[arg(long, default_value = "127.0.0.1")]
-    server_address: String,
-
-    /// Specify port
-    #[arg(short, long, default_value = "8787")]
-    port: String,
-
-    /// Use debug version
-    #[arg(long)]
-    debug: bool,
-}
+use utils::config::Config;
 
 fn main() {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("debug")).init();
 
-    let args = Args::parse();
+    let config = Config::read();
 
-    let server = Server::new(args.server_address, args.port);
+    let server = Server::new(config.server_address, config.port);
     let listener_result = server.start_server();
 
     let listener = match listener_result {
@@ -69,7 +54,6 @@ fn handle_client(stream: &mut TcpStream) -> Result<(), io::Error> {
     //     },
     //     Err(err) => return Err(err),
     // };
-    
 
     Ok(())
 }
