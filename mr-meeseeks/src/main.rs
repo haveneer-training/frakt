@@ -1,42 +1,13 @@
 mod models;
 mod utils;
 
-use std::{process, io::Write};
+use std::process;
 
-use blue_box::{types::{protocols::FragmentResult, desc::PixelData}, models::fractal::Fractal};
-use clap::Parser;
+use blue_box::models::fractal::Fractal;
 use env_logger::Env;
-use log::{warn, info, debug, error};
+use log::{warn, error};
 use models::client::Client;
-use utils::start_util;
-
-#[derive(Parser, Debug)]
-#[command(author, version, about, long_about = None)]
-struct Args {
-    /// Specify server address
-    #[arg(long, default_value = "localhost")]
-    server_address: String,
-
-    /// Specify server port
-    #[arg(short, long, default_value = "8787")]
-    port: String,
-
-    /// Specify server port
-    #[arg(short, long, default_value = "Groupe 7")]
-    worker_name: String,
-
-    /// Specify server port
-    #[arg(short, long, default_value_t = 100)]
-    max_work: u32,
-
-    /// Use debug version
-    #[arg(long)]
-    debug: bool,
-
-    /// Use GPU
-    #[arg(long)]
-    gpu_use: bool,
-}
+use utils::{start_util, config::Config};
 
 fn main(){
     start_util::start_message();
@@ -49,11 +20,11 @@ fn main(){
     //  debug
     //  trace
 
-    let args = Args::parse();
+    let config = Config::read();
 
-    let client = Client::new(args.server_address, args.port);
+    let client = Client::new(config.server_address, config.port);
 
-    let fragment_task_result = client.ask_for_work(&args.worker_name, args.max_work);
+    let fragment_task_result = client.ask_for_work(&config.worker_name, config.max_work);
     let (mut fragment_task, mut data) = match fragment_task_result {
         Ok((fragment, data)) => (fragment, data),
         Err(err) => {
@@ -61,7 +32,7 @@ fn main(){
             process::exit(1)
         }
     };
-    
+
     while true{
         let fragment_result = Fractal::run(&fragment_task, &mut data);
         
@@ -76,7 +47,7 @@ fn main(){
                 fragment
             },
             Err(_) => {
-                match client.ask_for_work(&args.worker_name, args.max_work) {
+                match client.ask_for_work(&config.worker_name, config.max_work) {
                     Ok((fragment, new_data)) => {
                         data = new_data;
                         fragment
