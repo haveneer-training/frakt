@@ -92,7 +92,7 @@ impl CalcFractal for Mandelbrot{
             z = z * z + c;
             i += 1;
         }
-        ((z.norm() as f32 / 4.0), (i as f32 / *max_iteration as f32))
+        ((z.norm() as f32), (i as f32 / *max_iteration as f32))
     }
 }
 
