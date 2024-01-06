@@ -99,12 +99,11 @@ impl CalcFractal for Mandelbrot{
 impl CalcFractal for IteratedSinZ{
 
     fn determine_pixel_intensity(&self, x: f64, y: f64, max_iteration: &u32) -> (f32, f32) {
-        let c = Complex::new(x, y);
-        let mut z = Complex::new(0_f64, 0_f64);
+        let mut z = Complex::new(x, y);
 
         let mut i = 0;
-        while i < *max_iteration && z.norm() < 4.0 {
-            z = z * z + c;
+        while i < *max_iteration && z.norm() < 50.0 {
+            z = self.c * z.sin();
             i += 1;
         }
 
