@@ -34,7 +34,6 @@ fn main() {
             }
         }
     }
-
 }
 
 fn handle_client(stream: &mut TcpStream) -> Result<(), io::Error> {

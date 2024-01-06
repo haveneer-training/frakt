@@ -18,6 +18,14 @@ impl Complex {
     pub fn norm(&self) -> f64 {
         (self.re.powi(2) + self.im.powi(2)).sqrt()
     }
+
+    pub fn sin(&self)-> Complex{
+        Complex{
+            re:(self.re.sin() * self.im.cosh()),
+            im:(self.re.cos() * self.im.sinh())
+        }
+    }
+
 }
 
 impl ops::Add for Complex {
