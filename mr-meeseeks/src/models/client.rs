@@ -1,7 +1,26 @@
+//! This Rust module defines a `Client` structure for handling network interactions in a distributed computing context, particularly for handling fragment tasks. 
+//! The client is responsible for communicating with a server, requesting work, and sending completed tasks back. 
+//! It uses the `Network` module for establishing TCP connections and the `protocols` module for the message format.
+//!
+//! The `Client` struct includes a `Network` instance to manage the connection details. It provides two main functionalities:
+//! 
+//! The client utilizes internal utility function `connect_to_server` to establish a TCP connection with the server,
+//! and it ensures the connection is closed after each operation.
+//! This module is crucial for maintaining efficient and reliable communication between the distributed computing client and server,
+//! handling both the initiation of tasks and the return of completed work.
+//!
+//! ## Example: 
+//! To create a new customer you can use the following code:
+//! ```
+//! let client = Client::new("184.194.9.1", "8787")
+//! ```
+
 use std::{net::TcpStream, io};
 
 use blue_box::{models::network::Network, types::protocols::{FragmentTask, FragmentRequest, Fragment, FragmentResult}};
 use log::debug;
+
+/// The client structure contains server connection information
 #[derive(Debug)]
 pub struct Client {
     network: Network
@@ -14,6 +33,9 @@ impl Client {
         }
     }
 
+    /// This method requests a new `FragmentTask` from the server. 
+    /// It sends a `FragmentRequest` to the server, including the worker's name and their maximal work capacity. 
+    /// The server responds with a task and data to process. In case of an incorrect response type or network errors, appropriate errors are returned.
     pub fn ask_for_work(
         &self,
         worker_name: &str,
@@ -49,6 +71,8 @@ impl Client {
         Ok((fragment, data))
     }
 
+    /// After processing a task, the client uses this method to send the `FragmentResult` back to the server.
+    /// If the server accepts the result, it returns a new `FragmentTask`
     pub fn send_work_done(&self, fragment_result: FragmentResult, data: &mut Vec<u8>) -> Result<FragmentTask, io::Error> {
         let mut stream = self.connect_to_server()?;
 
