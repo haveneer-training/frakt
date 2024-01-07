@@ -1,3 +1,12 @@
+//!```
+//!pub struct Complex{
+//!pub re: f64,
+//!pub im: f64
+//!}
+//!```
+//!
+//!A complex number in f64 form.
+
 mod complex_test;
 
 use std::ops;
@@ -15,10 +24,12 @@ impl Complex {
         Complex { re, im }
     }
 
+    /// It is possible to calculate the norm of a complex number
     pub fn norm(&self) -> f64 {
         (self.re.powi(2) + self.im.powi(2)).sqrt()
     }
 
+    /// It is possible to obtain the sine of a complex number, which returns a new complex number
     pub fn sin(&self)-> Complex{
         Complex{
             re:(self.re.sin() * self.im.cosh()),
@@ -28,6 +39,7 @@ impl Complex {
 
 }
 
+/// You can add compelx numbers together
 impl ops::Add for Complex {
     type Output = Self;
     fn add(self, ot: Self) -> Self {
@@ -38,6 +50,7 @@ impl ops::Add for Complex {
     }
 }
 
+/// You can mult complex numbers together
 impl ops::Mul for Complex {
     type Output = Self;
     fn mul(self, other: Self) -> Self::Output {
