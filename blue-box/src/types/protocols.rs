@@ -27,7 +27,7 @@ pub struct FragmentRequest {
 pub struct FragmentTask {
     pub id: U8Data,
     pub fractal: FractalDescriptor,
-    pub max_iteration: u16,
+    pub max_iteration: u32,
     pub resolution: Resolution,
     pub range: Range,
 }
