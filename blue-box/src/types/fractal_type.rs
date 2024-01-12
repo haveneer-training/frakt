@@ -119,3 +119,22 @@ impl CalcFractal for IteratedSinZ{
     }
 
 }
+
+impl CalcFractal for NewtonRaphsonZ3 {
+    fn determine_pixel_intensity(&self, x: f64, y: f64, max_iteration: &u32) -> (f32, f32) {
+        let mut z = Complex::new(x, y);
+
+        let mut i = 0;
+        while i < *max_iteration && z.norm() < 50.0 {
+
+            let numerator = z.norm() - z.sin();
+            let denominator = z.sin() * z.norm();
+            z = z - numerator / denominator;
+
+            i += 1;
+        }
+
+        ((z.norm() as f32), (i as f32 / *max_iteration as f32))
+    }
+}
+
