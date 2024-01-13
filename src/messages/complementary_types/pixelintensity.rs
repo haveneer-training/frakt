@@ -1,9 +1,9 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PixelIntensity {
-    zn: f32,
-    count: f32,
+    pub zn: f32,
+    pub count: f32,
 }
 
 impl PixelIntensity {

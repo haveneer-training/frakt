@@ -1,9 +1,9 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Resolution {
-    nx: u16,
-    ny: u16,
+    pub nx: u16,
+    pub ny: u16,
 }
 
 impl Resolution {
