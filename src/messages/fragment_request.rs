@@ -1,9 +1,9 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct FragmentRequest {
-    worker_name: String,
-    maximal_work_load: u32,
+    pub worker_name: String,
+    pub maximal_work_load: u32,
 }
 
 impl FragmentRequest {

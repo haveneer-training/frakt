@@ -1,9 +1,9 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct U8Data {
-    offset: u32,
-    count: u32,
+    pub offset: u32,
+    pub count: u32,
 }
 
 impl U8Data {

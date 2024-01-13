@@ -1,18 +1,18 @@
 //TODO : add fractal
-use super::complementary_types::u8data::U8Data;
-use super::complementary_types::resolution::Resolution;
 use super::complementary_types::range::Range;
+use super::complementary_types::resolution::Resolution;
+use super::complementary_types::u8data::U8Data;
 use super::fractal::fractal::Fractal;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct FragmentTask {
-    id: U8Data,
-    fractal: Fractal,
-    max_iteration: u16,
-    resolution: Resolution,
-    range: Range,
+    pub id: U8Data,
+    pub fractal: Fractal,
+    pub max_iteration: u16,
+    pub resolution: Resolution,
+    pub range: Range,
 }
 
 impl FragmentTask {
