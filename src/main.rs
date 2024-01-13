@@ -1,8 +1,10 @@
 extern crate image;
 mod client;
 mod messages;
+mod client;
 
 use crate::client::client_services::ClientServices;
+<<<<<<< HEAD
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, Copy)]
@@ -98,6 +100,10 @@ fn main() {
 
     // from Jules
 
+=======
+
+fn main() {
+>>>>>>> 737e21e26fba34f1b260e0fdde5053f7d565fbe0
     let mut client = ClientServices::new(String::from("localhost"), 8787);
     let request = messages::fragment_request::FragmentRequest::new(String::from("worker"), 10);
     let task = client.request_task(request);
