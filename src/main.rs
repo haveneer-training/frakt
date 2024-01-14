@@ -48,6 +48,8 @@ fn main() {
         pixelData,
     );
 
+    println!("{}", _result.serialize());
+
     let x_start = task.range.min.x;
     let x_end = task.range.max.x;
     let y_start = task.range.min.y;
@@ -114,4 +116,6 @@ fn main() {
         "nombre de PixelIntensity calculated: {}",
         pixel_intensity_vec.len()
     );
+    client = ClientServices::new(String::from("localhost"), 8787);
+    client.send_result(_result, pixel_intensity_vec);
 }
