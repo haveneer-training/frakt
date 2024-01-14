@@ -4,7 +4,7 @@ use super::fractal_types::julia::Julia;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Fractal {
-    Julia: Julia, //laisser en majuscule, très important
+    pub Julia: Julia, //laisser en majuscule, très important
 }
 
 impl Fractal {}

@@ -36,6 +36,10 @@ impl Complex {
         self.re * self.re + self.im * self.im
     }
 
+    pub fn norm(&self) -> f64 {
+        (self.re * self.re + self.im * self.im).sqrt()
+    }
+
     pub fn abs(self) -> Self {
         Complex {
             re: self.re.abs(),

@@ -13,16 +13,33 @@ pub mod fractal_lib {
         return (i as f64 - z.arg_sq().log2().log2()) / (max as f64);
     }
 
-    pub fn julia(x: f64, y: f64) -> f64 {
-        let mut z = Complex { re: x, im: y };
-        let c = Complex { re: 0.38, im: 0.28 };
-        let max = 256;
-        let mut i = 0;
-        while i < max && z.arg_sq() < 32.0 {
-            z = z * z + c;
-            i += 1;
+    // pub fn julia(x: f64, y: f64) -> f64 {
+    //     let mut z = Complex { re: x, im: y };
+    //     let c = Complex { re: 0.38, im: 0.28 };
+    //     let max = 256;
+    //     let mut i = 0;
+    //     while i < max && z.arg_sq() < 32.0 {
+    //         z = z * z + c;
+    //         i += 1;
+    //     }
+    //     return (i as f64 - z.arg_sq().log2().log2()) / (max as f64);
+    // }
+
+    pub fn julia(z: Complex, c: Complex, max_divergence: f64, max_iter: u16) -> (f32, f32) {
+        let mut zn = z;
+        let mut count = 0;
+        for i in 0..max_iter {
+            count = i;
+            zn = zn * zn + c;
+
+            if zn.arg_sq() > max_divergence {
+                break;
+            }
         }
-        return (i as f64 - z.arg_sq().log2().log2()) / (max as f64);
+        (
+            (zn.arg_sq() / max_divergence) as f32,
+            (count / max_iter) as f32,
+        )
     }
 
     pub fn color(t: f64) -> [u8; 3] {
