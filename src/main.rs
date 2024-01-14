@@ -33,7 +33,7 @@ fn main() {
     // from Jules
     let mut client = ClientServices::new(String::from("localhost"), 8787);
     let request = messages::fragment_request::FragmentRequest::new(String::from("worker"), 10);
-    let task = client.request_task(request);
+    let (task, id) = client.request_task(request);
     println!("{}", task.serialize());
     //TODO: calculer la fractale
 
@@ -117,5 +117,5 @@ fn main() {
         pixel_intensity_vec.len()
     );
     client = ClientServices::new(String::from("localhost"), 8787);
-    client.send_result(_result, pixel_intensity_vec);
+    client.send_result(_result, pixel_intensity_vec, id);
 }

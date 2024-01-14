@@ -1,6 +1,8 @@
 use std::io::{Read, Write};
 use std::net::TcpStream;
 
+use image::EncodableLayout;
+
 use crate::messages::complementary_types::pixelintensity::PixelIntensity;
 use crate::messages::fragment_request::FragmentRequest;
 use crate::messages::fragment_result::FragmentResult;
@@ -22,7 +24,7 @@ impl ClientServices {
     }
 
     //TODO: virer expect et mut
-    pub fn request_task(&mut self, request: FragmentRequest) -> FragmentTask {
+    pub fn request_task(&mut self, request: FragmentRequest) -> (FragmentTask, Vec<u8>) {
         let serialized = request.serialize();
         let json_bytes = serialized.as_bytes();
 
@@ -58,41 +60,54 @@ impl ClientServices {
             .expect("could not read from stream");
 
         let task = FragmentTask::deserialize(&json_message);
-        task
+        (task, data_buffer)
     }
 
-    pub fn send_result(&mut self, result: FragmentResult, pixels_intensity: Vec<PixelIntensity>) {
+    pub fn send_result(
+        &mut self,
+        result: FragmentResult,
+        pixels_intensity: Vec<PixelIntensity>,
+        id: Vec<u8>,
+    ) {
         let serialized = result.serialize();
         let json_bytes = serialized.as_bytes();
         let msg_len: u32 = json_bytes.len() as u32;
 
-        //Total message size = message size + number of PixelIntensity entites * octet size for zn and count which are 2 f32 numbers.
-        let total_msg_len: u32 = msg_len + (16 + pixels_intensity.len() * 4 * 2) as u32;
+        //Total message size = message size + count (Id size in bytes) + number of pixels * ( 4 bytes for zn (u32) + 4 bytes for count (u32)).
+        let total_msg_len: u32 = msg_len + (result.pixels.offset + result.pixels.count * (4 + 4));
         println!(
             "{:?} {:?}",
             &pixels_intensity[0].zn.to_be_bytes(),
             &pixels_intensity[0].count.to_be_bytes()
         );
+        //send Total message size
         let a = total_msg_len.to_be_bytes();
         self.stream.write(&a).expect("Could not write to stream");
+
+        //send Json message size
         let b = msg_len.to_be_bytes();
         self.stream.write(&b).expect("Could not write to stream");
+
+        //send Json message (FragmentResult)
         self.stream
             .write(json_bytes)
             .expect("Could not write to stream");
-        let machin = result.id.offset.to_be_bytes();
-        let truc = result.id.count.to_be_bytes();
+
+        //send Id
 
         self.stream
-            .write(&machin)
+            .write(&id.as_bytes())
             .expect("Could not write to stream");
-        self.stream.write(&truc).expect("Could not write to stream");
+
+        //send zn and count for each pixels
         for pixel in pixels_intensity {
+            let zn = pixel.zn;
+            let count = pixel.count;
             self.stream
-                .write(&pixel.zn.to_be_bytes())
+                .write(&zn.to_be_bytes())
                 .expect("Could not write to stream");
             self.stream
-                .write(&pixel.count.to_be_bytes())
+                .write(&count.to_be_bytes())
                 .expect("Could not write to stream");
         }
 

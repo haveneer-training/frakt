@@ -28,13 +28,13 @@ pub mod fractal_lib {
     pub fn julia(z: Complex, c: Complex, max_divergence: f64, max_iter: u16) -> (f32, f32) {
         let mut zn = z;
         let mut count = 0;
-        for i in 0..max_iter {
-            count = i;
+        while count < max_iter {
             zn = zn * zn + c;
 
             if zn.arg_sq() > max_divergence {
                 break;
             }
+            count += 1;
         }
         (
             (zn.arg_sq() / max_divergence) as f32,
