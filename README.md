@@ -9,10 +9,21 @@ qui se connectent au serveur pour récupérer des tâches de calcul pour une fra
 La nature même des fractales que nous traiterons ici permet un découpage du rendu d'une image globale en fragments
 indépendants et donc parfaitement calculables en parallèles par un réseau de machines.
 
-## Errata
+## Errata / changes
+
+* Précision du calcul de l'attribut `zn` de `PixelIntensity` pour chaque fractale.
+
+* Le calcul spécifique à [Newton Raphson Z^n](NewtonRaphsonZn.md) des champs `zn` et `count` de `PixelIntensity` a été
+  modifié pour que `count`
+  reste plus classique et `zn` plus *utile* pour cette courbe où $|z_n| converge naturellement vers 1.
+
+* `max_iteration` a été promu en `u32` (pour plus de détails)
 
 * Il y avait un doublon de définition du paramètre `max_iteration` entre `FragmentTask` et `JuliaDescriptor`; il a été
   retiré de ce dernier (`max_iteration` est donc mutualisé entre toutes les définitions de fractales).
+
+* La définition des fractales `NewtonRaphsonZ*` ont été renommé plus justement `NewtonRaphsonZ*` laissant alors
+  apparaître les *vraies* fractales `NewtonRaphsonZ*`.
 
 ## Scénario d'une exécution optimale
 
@@ -67,7 +78,7 @@ indépendants et donc parfaitement calculables en parallèles par un réseau de 
 Les calculs de fractales que nous considérons ici consistent en l'évaluation d'une suite $z_{n+1}=f(z_n)$ (à valeurs
 dans le corps des nombres complexes) où l'évaluation s'arrête soit quand on observe que $z_n$ a convergé ou divergé (
 voir le détail pour chaque fractale) ou si $n$ dépasse un maximum d'itérations défini par la fractale. Les dernières
-valeurs de $z_n$ et de $n$ forment les composantes de `PixelIntensity`.
+valeurs de $z_n$ et de $n / max_{iteration}$ forment les composantes de `PixelIntensity`.
 
 Les coordonnées du pixel pour lequel on évalue cette suite pourra être utilisé soit en tant que valeur de $z_0$ soit
 comme un paramètre interne à la définition de $f$.
@@ -80,6 +91,7 @@ paramètre `range`) devra être pris au centre du pixel associé à la résoluti
 * [Mandelbrot](Mandelbrot.md)
 * [Iterated SinZ](IteratedSinZ.md)
 * [Newton Raphson Z^n](NewtonRaphsonZn.md)
+* [Nova Newton Raphson Z^n](NovaNewtonRaphsonZn.md)
 
 ## Votre objectif
 
@@ -220,6 +232,11 @@ La section *Data* est donc composée de (Total message size) - (JSON message siz
 données correspondantes aux sections de type `*Data` (le décodage de cette section dépend des
 paramètres `offset`, `count`).
 
+Par exemple:
+
+* si le message contient un JSON de 20 octets et 0 octets de data, `JSON message size`== 20 et `Total message size`==20
+* si le message contient un JSON de 20 octets et 8 octets de data, `JSON message size`== 20 et `Total message size`==28
+
 ### Description des messages
 
 Tous ces messages sont transmis sous la forme d'une
@@ -228,7 +245,7 @@ sérialisation [JSON](https://fr.wikipedia.org/wiki/JavaScript_Object_Notation).
 | Nom du message    | Champs du message                                                                                                        | Exemple                                                                                                                                                                                                                                       |
 |-------------------|--------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `FragmentRequest` | `worker_name: String`<br/>`maximal_work_load: u32`                                                                       | `{"FragmentRequest":{"worker_name":"fractal painter","maximal_work_load":1000}}`                                                                                                                                                              |
-| `FragmentTask`    | `id: U8Data`<br/>`fractal: *FractalDescriptor*`<br/>`max_iteration: u16`<br/>`resolution: Resolution`<br/>`range: Range` | `{"FragmentTask":{"id":{"offset":0,"count":8},"fractal":{"Julia":{"c":{"re":0.0,"im":0.1},"divergence_threshold_square":0.0}},"max_iteration":0,"resolution":{"nx":160,"ny":120},"range":{"min":{"x":0.0,"y":0.0},"max":{"x":1.0,"y":1.0}}}}` |
+| `FragmentTask`    | `id: U8Data`<br/>`fractal: *FractalDescriptor*`<br/>`max_iteration: u32`<br/>`resolution: Resolution`<br/>`range: Range` | `{"FragmentTask":{"id":{"offset":0,"count":8},"fractal":{"Julia":{"c":{"re":0.0,"im":0.1},"divergence_threshold_square":0.0}},"max_iteration":0,"resolution":{"nx":160,"ny":120},"range":{"min":{"x":0.0,"y":0.0},"max":{"x":1.0,"y":1.0}}}}` |
 | `FragmentResult`  | `id: U8Data`<br/>`resolution: Resolution`<br/>`range: Range`<br/>`pixels: PixelData`                                     | `{"FragmentResult":{"id":{"offset":0,"count":8},"resolution":{"x":160,"y":120},"range":{"min":{"x":0.0,"y":0.0},"max":{"x":1.0,"y":1.0}},"pixels":{"offset":8,"count":19200}}}`                                                               |
 
 Vous trouverez le détail de *FractalDescriptor* dans la description de chaque fractale.
@@ -250,10 +267,17 @@ Vous trouverez le détail de *FractalDescriptor* dans la description de chaque f
 | `PixelIntensity` | `zn: f32`<br/>`count: f32`     |
 
 Un objet de `PixelIntensity` correspond à la valeur donnée par la fonction *fractale* choisie pour un pixel.
-L'attribut `zn` correspond au module en fin d'itération et `count` au nombre d'itérations effectués divisé par le nombre
-maximum d'itérations. Les champs de `PixelIntensity` sont sérialisés en un flux octets (avec encodage Big Endian) dans
-l'ordre `zn` puis `count` et les pixels d'un `FragmentResult` sont sérialisés successivement ligne par ligne, de gauche
-à droite pour chaque ligne.
+L'attribut `count` correspond au nombre d'itérations effectuées divisé par le nombre maximum d'itérations (donc
+0 ≤ `count` ≤ 1; `count` vaut 1 si le calcul n'a pas convergé).
+
+L'attribut `zn` est plus fin et est défini au cas par cas (voir chacune des courbes). Grosso modo, il est assimilable à
+$|z_n|$ (module de la dernière itération) même si pour des raisons esthétiques, il peut être quelque peu adapté.
+
+Les champs de `PixelIntensity` sont sérialisés en un flux octets (avec
+encodage Big Endian) dans l'ordre `zn` puis `count` et les pixels d'un `FragmentResult` sont sérialisés successivement
+ligne par ligne, de gauche à droite pour chaque ligne.
+
+![Range et Resolution](images/RangeAndResolution.svg "Range et Resolution")
 
 ## Couleur et rendu par le serveur
 
