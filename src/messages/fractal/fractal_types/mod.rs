@@ -1,2 +1,1 @@
-pub mod julia;
-pub mod mandelbrot;
+pub mod fractal_types;

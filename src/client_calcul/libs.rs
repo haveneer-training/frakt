@@ -23,7 +23,22 @@ pub mod fractal_lib {
         let mut zn = Complex::new(0 as f64, 0 as f64);
         let mut count = 0;
 
-        while zn.arg_sq() < 4 as f64 {
+        while zn.arg_sq() < 4 as f64 && count < max_iter {
+            zn = zn * zn + c;
+            count += 1;
+        }
+        (
+            zn.arg_sq() as f32 / 4 as f32,
+            count as f32 / max_iter as f32,
+        )
+    }
+
+    pub fn iteratedSinZ(z: Complex, c: Complex, max_iter: u16) -> (f32, f32) {
+        let c = z;
+        let mut zn = Complex::new(0 as f64, 0 as f64);
+        let mut count = 0;
+
+        while zn.arg_sq() < 50 as f64 && count < max_iter {
             zn = zn * zn + c;
             count += 1;
         }
