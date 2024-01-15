@@ -8,12 +8,12 @@ use crate::{
 use super::super::super::complementary_types::complex::Complex;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Julia {
+pub struct Mandelbrot {
     pub divergence_threshold_square: f64,
     pub c: Complex,
 }
 
-impl Julia {
+impl Mandelbrot {
     pub fn get_datas(task: &FragmentTask) -> Vec<PixelIntensity> {
         let x_start = task.range.min.x;
         let x_end = task.range.max.x;
@@ -24,22 +24,15 @@ impl Julia {
         let y_step = ((&y_start - &y_end) / task.resolution.ny as f64).abs();
 
         let mut pixel_intensity_vec: Vec<PixelIntensity> = Vec::new();
-
-        let julia_complexe = task.fractal.Julia.c;
-        let max_divergence = task.fractal.Julia.divergence_threshold_square;
         let max_iteration = task.max_iteration;
+
         let mut x = x_start;
         let mut y = y_start;
 
         while y < y_end {
             while x < x_end {
                 let pixel_complexe = Complex::new(x, y);
-                let fractal_result = fractal_lib::julia(
-                    pixel_complexe,
-                    julia_complexe,
-                    max_divergence,
-                    max_iteration,
-                );
+                let fractal_result = fractal_lib::mandelbrot(pixel_complexe, max_iteration);
                 pixel_intensity_vec.push(PixelIntensity::new(fractal_result.0, fractal_result.1));
                 x += x_step;
             }
