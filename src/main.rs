@@ -44,7 +44,7 @@ fn main() {
     client.send_result(_result, pixel_intensity_vec, id);
 
     while true {
-        let (task, id) = client.readTaskResponse();
+        let (task, id) = client.read_task_response();
         let _result = FragmentResult::create(&task);
 
         println!("{}", _result.serialize());

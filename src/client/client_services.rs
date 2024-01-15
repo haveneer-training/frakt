@@ -36,10 +36,10 @@ impl ClientServices {
             .write(json_bytes)
             .expect("Could not write to stream");
 
-        return self.readTaskResponse();
+        return self.read_task_response();
     }
 
-    pub fn readTaskResponse(&mut self) -> (FragmentTask, Vec<u8>) {
+    pub fn read_task_response(&mut self) -> (FragmentTask, Vec<u8>) {
         let mut buffer = [0; 4];
         self.stream
             .read_exact(&mut buffer)

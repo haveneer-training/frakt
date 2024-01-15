@@ -29,14 +29,14 @@ impl FragmentResult {
     }
 
     pub fn create(task: &FragmentTask) -> FragmentResult {
-        let pixelData = PixelData::new(
+        let pixel_data = PixelData::new(
             task.id.offset + task.id.count,
             task.resolution.nx as u32 * task.resolution.ny as u32,
         );
         let id = task.id;
         let resolution = task.resolution;
         let range = task.range;
-        return FragmentResult::new(id, resolution, range, pixelData);
+        return FragmentResult::new(id, resolution, range, pixel_data);
     }
 
     pub fn serialize(&self) -> String {

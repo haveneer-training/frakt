@@ -4,30 +4,6 @@ pub mod fractal_lib {
         fragment_task::FragmentTask,
     };
 
-    // pub fn mandelbrot(x: f64, y: f64) -> f64 {
-    //     let mut z = Complex { re: 0.0, im: 0.0 };
-    //     let c = Complex { re: x, im: y };
-    //     let max = 256;
-    //     let mut i = 0;
-    //     while i < max && z.arg_sq() < 32.0 {
-    //         z = z * z + c;
-    //         i += 1;
-    //     }
-    //     return (i as f64 - z.arg_sq().log2().log2()) / (max as f64);
-    // }
-
-    // pub fn julia(x: f64, y: f64) -> f64 {
-    //     let mut z = Complex { re: x, im: y };
-    //     let c = Complex { re: 0.38, im: 0.28 };
-    //     let max = 256;
-    //     let mut i = 0;
-    //     while i < max && z.arg_sq() < 32.0 {
-    //         z = z * z + c;
-    //         i += 1;
-    //     }
-    //     return (i as f64 - z.arg_sq().log2().log2()) / (max as f64);
-    // }
-
     pub fn julia(z: Complex, c: Complex, max_divergence: f64, max_iter: u16) -> (f32, f32) {
         let mut zn = z;
         let mut count = 0;
