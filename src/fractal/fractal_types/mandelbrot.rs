@@ -2,19 +2,18 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     client_calcul::libs::fractal_lib,
-    messages::{complementary_types::pixelintensity::PixelIntensity, fragment_task::FragmentTask},
+    fractal::fractal::GetDatas,
+    messages::{
+        complementary_types::{complex::Complex, pixelintensity::PixelIntensity},
+        fragment_task::FragmentTask,
+    },
 };
 
-use super::super::super::complementary_types::complex::Complex;
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Mandelbrot {
-    pub divergence_threshold_square: f64,
-    pub c: Complex,
-}
+pub struct Mandelbrot {}
 
-impl Mandelbrot {
-    pub fn get_datas(task: &FragmentTask) -> Vec<PixelIntensity> {
+impl GetDatas for Mandelbrot {
+    fn get_datas(&self, task: &FragmentTask) -> Vec<PixelIntensity> {
         let x_start = task.range.min.x;
         let x_end = task.range.max.x;
         let y_start = task.range.min.y;

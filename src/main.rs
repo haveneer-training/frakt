@@ -1,6 +1,7 @@
 extern crate image;
 mod client;
 mod messages;
+mod fractal;
 
 mod client_calcul {
     pub mod libs;
@@ -10,10 +11,10 @@ use crate::{
     client::client_services::ClientServices,
     messages::{
         complementary_types::{complex::Complex, pixelintensity::PixelIntensity},
-        fractal::fractal_types::julia::Julia,
         fragment_result::FragmentResult,
-    },
+    }, fractal::fractal::GetDatas,
 };
+use crate::fractal::fractal::FractalDescriptor;
 use client_calcul::libs::fractal_lib;
 use serde::{Deserialize, Serialize};
 
@@ -28,11 +29,13 @@ fn main() {
 
     println!("{}", _result.serialize());
 
-    let pixel_intensity_vec = Julia::get_datas(&task);
+    let pixel_intensity_vec = match &task.fractal {
+        FractalDescriptor::Julia(julia) => julia.get_datas(&task),
+        FractalDescriptor::Mandelbrot(mandelbrot) => mandelbrot.get_datas(&task),
+        FractalDescriptor::IteratedSinZ(iteratedSinZ) => iteratedSinZ.get_datas(&task),
+    };
 
     fractal_lib::create_image(&task, &pixel_intensity_vec);
-
-    println!("{:?}", &pixel_intensity_vec[0]);
 
     // println!(
     //     "nombre de PixelIntensity calculated: {}",
@@ -45,12 +48,18 @@ fn main() {
 
     while true {
         let (task, id) = client.read_task_response();
+        println!("{}", task.serialize());
+
         let _result = FragmentResult::create(&task);
 
         println!("{}", _result.serialize());
 
-        let pixel_intensity_vec = Julia::get_datas(&task);
-
+        let pixel_intensity_vec = match &task.fractal {
+            FractalDescriptor::Julia(julia) => julia.get_datas(&task),
+            FractalDescriptor::Mandelbrot(mandelbrot) => mandelbrot.get_datas(&task),
+            FractalDescriptor::IteratedSinZ(iteratedSinZ) => iteratedSinZ.get_datas(&task),
+        };
+        println!("pixel_intensity_vec size: {}", pixel_intensity_vec.len());
         fractal_lib::create_image(&task, &pixel_intensity_vec);
 
         println!("{:?}", &pixel_intensity_vec[0]);
