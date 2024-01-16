@@ -1,9 +1,8 @@
 //TODO : add fractal
 use super::complementary_types::resolution::Resolution;
 use super::complementary_types::u8data::U8Data;
-use super::{
-    complementary_types::range::Range, fractal::fractal_types::fractal_types::FractalDescriptor,
-};
+use super::complementary_types::range::Range;
+use crate::fractal::fractal::FractalDescriptor;
 
 use serde::{Deserialize, Serialize};
 

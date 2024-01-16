@@ -1,6 +1,7 @@
 extern crate image;
 mod client;
 mod messages;
+mod fractal;
 
 mod client_calcul {
     pub mod libs;
@@ -10,10 +11,10 @@ use crate::{
     client::client_services::ClientServices,
     messages::{
         complementary_types::{complex::Complex, pixelintensity::PixelIntensity},
-        fractal::fractal_types::fractal_types::{FractalDescriptor, GetDatas, JuliaDescriptor},
         fragment_result::FragmentResult,
-    },
+    }, fractal::fractal::GetDatas,
 };
+use crate::fractal::fractal::FractalDescriptor;
 use client_calcul::libs::fractal_lib;
 use serde::{Deserialize, Serialize};
 
