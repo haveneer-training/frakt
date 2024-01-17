@@ -1,20 +1,21 @@
 extern crate image;
 mod client;
-mod messages;
 mod fractal;
+mod messages;
 
 mod client_calcul {
     pub mod libs;
 }
 
+use crate::fractal::fractal::FractalDescriptor;
 use crate::{
     client::client_services::ClientServices,
+    fractal::fractal::GetDatas,
     messages::{
         complementary_types::{complex::Complex, pixelintensity::PixelIntensity},
         fragment_result::FragmentResult,
-    }, fractal::fractal::GetDatas,
+    },
 };
-use crate::fractal::fractal::FractalDescriptor;
 use client_calcul::libs::fractal_lib;
 use serde::{Deserialize, Serialize};
 
@@ -35,7 +36,7 @@ fn main() {
         FractalDescriptor::IteratedSinZ(iteratedSinZ) => iteratedSinZ.get_datas(&task),
     };
 
-    fractal_lib::create_image(&task, &pixel_intensity_vec);
+    //fractal_lib::create_image(&task, &pixel_intensity_vec);
 
     // println!(
     //     "nombre de PixelIntensity calculated: {}",

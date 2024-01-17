@@ -46,4 +46,11 @@ impl Complex {
             im: self.im.abs(),
         }
     }
+
+    pub fn sin(&self) -> Complex {
+        Complex {
+            re: (self.re.sin() * self.im.cosh()),
+            im: (self.re.cos() * self.im.sinh()),
+        }
+    }
 }
