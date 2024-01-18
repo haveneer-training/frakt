@@ -8,16 +8,12 @@ mod client_calcul {
 }
 
 use crate::fractal::fractal::FractalDescriptor;
+use crate::fractal::fractal_types::newton_raphson_z_3;
 use crate::{
-    client::client_services::ClientServices,
-    fractal::fractal::GetDatas,
-    messages::{
-        complementary_types::{complex::Complex, pixelintensity::PixelIntensity},
-        fragment_result::FragmentResult,
-    },
+    client::client_services::ClientServices, fractal::fractal::GetDatas,
+    messages::fragment_result::FragmentResult,
 };
 use client_calcul::libs::fractal_lib;
-use serde::{Deserialize, Serialize};
 
 fn main() {
     let mut client = ClientServices::new(String::from("localhost"), 8787);
@@ -34,6 +30,12 @@ fn main() {
         FractalDescriptor::Julia(julia) => julia.get_datas(&task),
         FractalDescriptor::Mandelbrot(mandelbrot) => mandelbrot.get_datas(&task),
         FractalDescriptor::IteratedSinZ(iteratedSinZ) => iteratedSinZ.get_datas(&task),
+        FractalDescriptor::NewtonRaphsonZ3(newton_raphson_z_3) => {
+            newton_raphson_z_3.get_datas(&task)
+        }
+        FractalDescriptor::NewtonRaphsonZ4(newton_raphson_z_4) => {
+            newton_raphson_z_4.get_datas(&task)
+        }
     };
 
     //fractal_lib::create_image(&task, &pixel_intensity_vec);
@@ -59,11 +61,17 @@ fn main() {
             FractalDescriptor::Julia(julia) => julia.get_datas(&task),
             FractalDescriptor::Mandelbrot(mandelbrot) => mandelbrot.get_datas(&task),
             FractalDescriptor::IteratedSinZ(iteratedSinZ) => iteratedSinZ.get_datas(&task),
+            FractalDescriptor::NewtonRaphsonZ3(newton_raphson_z_3) => {
+                newton_raphson_z_3.get_datas(&task)
+            }
+            FractalDescriptor::NewtonRaphsonZ4(newton_raphson_z_4) => {
+                newton_raphson_z_4.get_datas(&task)
+            }
         };
-        println!("pixel_intensity_vec size: {}", pixel_intensity_vec.len());
-        fractal_lib::create_image(&task, &pixel_intensity_vec);
+        // println!("pixel_intensity_vec size: {}", pixel_intensity_vec.len());
+        // fractal_lib::create_image(&task, &pixel_intensity_vec);
 
-        println!("{:?}", &pixel_intensity_vec[0]);
+        // println!("{:?}", &pixel_intensity_vec);
 
         // println!(
         //     "nombre de PixelIntensity calculated: {}",

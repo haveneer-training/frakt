@@ -6,6 +6,7 @@ use crate::messages::{
 
 use super::fractal_types::{
     iterated_sin_z::IteratedSinZ, julia_descriptor::JuliaDescriptor, mandelbrot::Mandelbrot,
+    newton_raphson_z_3::NewtonRaphsonZ3, newton_raphson_z_4::NewtonRaphsonZ4,
 };
 
 pub trait GetDatas {
@@ -17,4 +18,6 @@ pub enum FractalDescriptor {
     Julia(JuliaDescriptor),
     Mandelbrot(Mandelbrot),
     IteratedSinZ(IteratedSinZ),
+    NewtonRaphsonZ3(NewtonRaphsonZ3),
+    NewtonRaphsonZ4(NewtonRaphsonZ4),
 }

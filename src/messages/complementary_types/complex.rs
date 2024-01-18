@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-
 #[derive(Serialize, Deserialize, Clone, Copy, Debug)]
 pub struct Complex {
     pub re: f64,
@@ -17,6 +16,17 @@ impl std::ops::Add for Complex {
     }
 }
 
+impl std::ops::Sub for Complex {
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self {
+        Complex {
+            re: self.re - rhs.re,
+            im: self.im - rhs.im,
+        }
+    }
+}
+
 impl std::ops::Mul for Complex {
     type Output = Self;
 
@@ -24,6 +34,17 @@ impl std::ops::Mul for Complex {
         Complex {
             re: self.re * rhs.re - self.im * rhs.im,
             im: self.re * rhs.im + self.im * rhs.re,
+        }
+    }
+}
+
+impl std::ops::Div for Complex {
+    type Output = Self;
+
+    fn div(self, rhs: Self) -> Self {
+        Complex {
+            re: (self.re * rhs.re + self.im * rhs.im) / (rhs.re * rhs.re + rhs.im * rhs.im),
+            im: (self.im * rhs.re - self.re * rhs.im) / (rhs.re * rhs.re + rhs.im * rhs.im),
         }
     }
 }
@@ -52,5 +73,9 @@ impl Complex {
             re: (self.re.sin() * self.im.cosh()),
             im: (self.re.cos() * self.im.sinh()),
         }
+    }
+
+    pub fn arg(self) -> f64 {
+        self.im.atan2(self.re)
     }
 }
