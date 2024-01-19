@@ -16,7 +16,7 @@ fn test_julia() {
     };
 
     let calc_pixel = julia.determine_pixel_intensity(0_f64, 0_f64, &150);
-    assert_eq!(calc_pixel, (5.399912, 0.30666667));
+    assert_eq!(calc_pixel, (4.4671035, 0.3));
 }
 
 #[test]
@@ -27,7 +27,7 @@ fn test_julia_second_params() {
     };
 
     let calc_pixel = julia.determine_pixel_intensity(0_f64, 0_f64, &150);
-    assert_eq!(calc_pixel, (0.41184834, 1.0));
+    assert_eq!(calc_pixel, (0.16961907, 1.0));
 }
 
 #[test]

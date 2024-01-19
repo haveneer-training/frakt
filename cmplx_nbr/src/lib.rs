@@ -26,7 +26,7 @@ impl Complex {
 
     /// It is possible to calculate the norm of a complex number
     pub fn norm(&self) -> f64 {
-        (self.re.powi(2) + self.im.powi(2)).sqrt()
+        self.re.powi(2) + self.im.powi(2)
     }
 
     /// It is possible to obtain the sine of a complex number, which returns a new complex number
