@@ -20,4 +20,4 @@ Cargo.lock
 # End of https://www.toptal.com/developers/gitignore/api/rust
 
 #pour ne pas upload les résult definit
-fractale_julia.png 
+fractale_julia.png

@@ -1,7 +1,9 @@
 pub mod pixel_management{
+    use serde::{Serialize, Deserialize};
+
     
     // Structure de coordonnées
-    #[derive(Debug, Serialize, PartialEq, Deserialize)]
+    #[derive(Debug, Serialize , PartialEq, Deserialize)]
     pub struct Point {
         pub x: f64,
         pub y: f64,
@@ -36,7 +38,11 @@ pub mod pixel_management{
     }
 }
 
-pub mod messages {  
+pub mod messages {
+    use serde::{Serialize, Deserialize};
+
+    use crate::pixel_management::{Resolution, Range, PixelData};
+  
      
 
     // Structure de données pour identifier une tâche
@@ -57,7 +63,7 @@ pub mod messages {
     #[derive(Debug, Serialize, PartialEq, Deserialize)]
     pub struct FragmentTask {
         pub id: U8Data,
-        pub fractal: Julia, // Changer si nécessaire
+        // pub fractal: Julia, // TO SET
         pub max_iteration: u16,
         pub resolution: Resolution,
         pub range: Range,
