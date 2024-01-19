@@ -3,6 +3,21 @@ extern crate image;
 
 use num_complex::Complex;
 use image::{Rgb, RgbImage};
+// use shared
+
+// pub mod fractals {
+
+
+//     use shared::messages::Complex;
+//     use serde::{Serialize, Deserialize};
+
+
+//     #[derive(Debug, Serialize, PartialEq, Deserialize)]
+//     pub struct Julia {
+//         pub c: Complex,
+//         pub divergence_threshold_square: f64,
+//     }
+// }
 
 fn julia_set(c: Complex<f64>, z_0: Complex<f64>, divergence_threshold_square: f64, max_iterations: usize) -> usize {
     let mut z = z_0;
