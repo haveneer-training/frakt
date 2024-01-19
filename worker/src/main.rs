@@ -33,8 +33,18 @@ fn julia_set(c: Complex<f64>, z_0: Complex<f64>, divergence_threshold_square: f6
     max_iterations
 }
 
-fn main() {
+fn mandelbrot_set(z_0: Complex<f64>, divergence_threshold_square: f64, max_iterations: usize) -> usize {
+    let mut z = Complex::new(0.0, 0.0);
+    for i in 0..max_iterations {
+        z = z * z + z_0;
+        if z.norm_sqr() > divergence_threshold_square {
+            return i;
+        }
+    }
+    max_iterations
+}
 
+fn generate_fractal_image(filename: &str, fractal_type: &str) {
     let range = 2.0;
     let divergence_threshold_square = 4.0;
     let max_iterations = 1000;
@@ -51,16 +61,27 @@ fn main() {
                 y as f64 / image_height as f64 * range - range / 2.0,
             );
 
-            let iterations = julia_set(
-                Complex::new(-0.8, 0.156),
-                z_0,
-                divergence_threshold_square,
-                max_iterations,
-            );
-            let color = (iterations % 256) as u8;
+            let iterations = match fractal_type {
+                "julia" => julia_set(
+                    Complex::new(-0.8, 0.156),
+                    z_0,
+                    divergence_threshold_square,
+                    max_iterations),
+                "mandelbrot" => mandelbrot_set(
+                    z_0,
+                    divergence_threshold_square,
+                    max_iterations),
+                _ => 0,
+            };
+            let color = (255 - (iterations % 256) as u8) as u8;
 
             img.put_pixel(x, y, Rgb([color, color, color]));
         }
     }
-    img.save("fractale_julia.png").unwrap();
+    img.save(filename).unwrap();
+}
+
+fn main() {
+    generate_fractal_image("fractale_julia.png", "julia");
+    generate_fractal_image("fractale_mandelbrot.png", "mandelbrot");
 }
