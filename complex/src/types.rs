@@ -9,7 +9,7 @@ pub mod calcul_type{
         pub imaginaire: f64,
     }
 
-    impl Add for Complex {
+    impl Add<Complex> for Complex {
         type Output = Complex;
 
         fn add(self, rhs : Self) -> Self::Output{   //self = complex type
@@ -20,7 +20,7 @@ pub mod calcul_type{
         }
     }
 
-    impl Sub for Complex {
+    impl Sub<Complex> for Complex {
         type Output = Complex;
     
         fn sub(self, rhs: Self) -> Self::Output {
@@ -31,7 +31,7 @@ pub mod calcul_type{
         }
     }
 
-    impl Mul for Complex {
+    impl Mul<Complex> for Complex {
         type Output = Complex;
     
         fn mul(self, rhs: Self) -> Self::Output {
@@ -42,7 +42,7 @@ pub mod calcul_type{
         }
     }
 
-    impl Div for Complex {
+    impl Div<Complex> for Complex {
         type Output = Complex;
     
         fn div(self, rhs: Self) -> Self::Output {
