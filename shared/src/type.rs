@@ -1,17 +1,11 @@
-pub mod messages {  
-    // Définitions des types de message
-
-    use serde::{Serialize, Deserialize};
-    use crate::types::fractals::Julia;
-
+pub mod pixel_management{
+    
     // Structure de coordonnées
     #[derive(Debug, Serialize, PartialEq, Deserialize)]
     pub struct Point {
         pub x: f64,
         pub y: f64,
     }
-
-    
 
     // Structure de plage (range)
     #[derive(Debug, Serialize, PartialEq, Deserialize)]
@@ -27,13 +21,6 @@ pub mod messages {
         pub ny: u16,
     }
 
-    // Structure de données pour identifier une tâche
-    #[derive(Debug, Serialize, PartialEq, Deserialize)]
-    pub struct U8Data {
-        pub offset: u32,
-        pub count: u32,
-    }
-
     // Structure représentant l'intensité d'un pixel
     #[derive(Debug, Serialize, PartialEq, Deserialize)]
     pub struct PixelIntensity {
@@ -44,6 +31,17 @@ pub mod messages {
     // Structure de données pour les pixels
     #[derive(Debug, Serialize, PartialEq, Deserialize)]
     pub struct PixelData {
+        pub offset: u32,
+        pub count: u32,
+    }
+}
+
+pub mod messages {  
+     
+
+    // Structure de données pour identifier une tâche
+    #[derive(Debug, Serialize, PartialEq, Deserialize)]
+    pub struct U8Data {
         pub offset: u32,
         pub count: u32,
     }
@@ -74,11 +72,6 @@ pub mod messages {
         pub pixels: PixelData,
     }
 
-    // Structure représentant un score pour un fragment
-    // #[derive(Debug, Serialize, PartialEq, Deserialize)]
-    // pub struct FragmentScore {
-    //     // Définir les champs nécessaires pour évaluer la qualité du résultat
-    // }
 }
 
 // #[cfg(test)]
