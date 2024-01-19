@@ -13,7 +13,7 @@ pub mod fractals {
     // use crate::
 
     use serde::{Serialize, Deserialize};
-    use complex::CalculType::Complex;
+    use complex::calcul_type::Complex;
 
     #[derive(Debug, Serialize, PartialEq, Deserialize)]
     pub struct Julia {

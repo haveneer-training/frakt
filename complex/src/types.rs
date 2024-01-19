@@ -1,4 +1,4 @@
-pub mod CalculType{
+pub mod calcul_type{
     use serde::{Serialize, Deserialize};
 
     // Structure de nombres complexes
