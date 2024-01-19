@@ -1,4 +1,4 @@
-pub mod calcul_type{
+pub mod calcul_types{
     use serde::{Serialize, Deserialize};
     use std::ops::{Add, Mul, Sub, Div};
 
@@ -15,7 +15,7 @@ pub mod calcul_type{
         fn add(self, rhs : Self) -> Self::Output{   //self = complex type
             Complex {
                 reel: self.reel + rhs.reel,
-                imaginaire: self.imaginaire + rhs.imaginaire,
+                imaginaire: self.imaginaire + rhs.imaginaire
             }
         }
     }

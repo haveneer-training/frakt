@@ -1,4 +1,4 @@
-pub mod pixel_management{
+pub mod pixel_management_types {
     use serde::{Serialize, Deserialize};
 
     
@@ -38,10 +38,10 @@ pub mod pixel_management{
     }
 }
 
-pub mod messages {
+pub mod messages_types {
     use serde::{Serialize, Deserialize};
 
-    use crate::pixel_management::{Resolution, Range, PixelData};
+    use crate::pixel_management_types::{Resolution, Range, PixelData};
   
      
 

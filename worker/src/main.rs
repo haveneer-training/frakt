@@ -7,13 +7,8 @@ use image::{Rgb, RgbImage};
 
 pub mod fractals {
 
-
-    // use shared::messages::Complex;
-    // use serde::{Serialize, Deserialize};
-    // use crate::
-
     use serde::{Serialize, Deserialize};
-    use complex::calcul_type::Complex;
+    use complex::calcul_types::Complex;
 
     #[derive(Debug, Serialize, PartialEq, Deserialize)]
     pub struct Julia {
