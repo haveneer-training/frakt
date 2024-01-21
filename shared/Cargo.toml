@@ -9,3 +9,4 @@ path = "src/types.rs"
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }
+dotenv = "0.15.0"

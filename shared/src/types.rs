@@ -1,3 +1,9 @@
+mod env_setup;
+
+pub fn initialize_shared() {    //pour fonction a appeler partout pour utiliser les valeurs de l'env.
+    env_setup::setup_env();
+}
+
 pub mod pixel_management_types {
     use serde::{Serialize, Deserialize};
 
