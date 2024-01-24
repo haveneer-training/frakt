@@ -45,8 +45,8 @@ pub mod calcul_types{
     impl Div<Complex> for Complex {
         type Output = Complex;
     
-        fn div(self, rhs: Self) -> Self::Output {
-            let denominator: f64 = rhs.reel * rhs.reel + rhs.imaginaire * rhs.imaginaire;
+        fn div(self, rhs: Complex) -> Complex {
+            let denominator = rhs.reel * rhs.reel + rhs.imaginaire * rhs.imaginaire;
     
             Complex {
                 reel: (self.reel * rhs.reel + self.imaginaire * rhs.imaginaire) / denominator,
@@ -57,27 +57,23 @@ pub mod calcul_types{
 
     impl PartialOrd for Complex {
         fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-            let norm_sqr_self: f64 = self.norm_sqr().reel;
-            let norm_sqr_other: f64 = other.norm_sqr().reel;
+            let norm_sqr_self: f64 = self.norm_sqr();
+            let norm_sqr_other: f64 = other.norm_sqr();
     
             norm_sqr_self.partial_cmp(&norm_sqr_other)
         }
     }
+
+    impl Eq for Complex {}
     
     impl Ord for Complex {
         fn cmp(&self, other: &Self) -> Ordering {
-            let norm_sqr_self: f64 = self.norm_sqr().reel;
-            let norm_sqr_other: f64 = other.norm_sqr().reel;
+            let norm_sqr_self: f64 = self.norm_sqr();
+            let norm_sqr_other: f64 = other.norm_sqr();
     
             norm_sqr_self
                 .partial_cmp(&norm_sqr_other)
                 .unwrap_or(Ordering::Equal)
-        }
-    }
-    
-    impl PartialEq for Complex {
-        fn eq(&self, other: &Self) -> bool {
-            self.reel == other.reel && self.imaginaire == other.imaginaire
         }
     }
 
@@ -87,11 +83,8 @@ pub mod calcul_types{
             Complex { reel, imaginaire }
         }
         // Fonction pour calculer la norme au carré
-        pub fn norm_sqr(&self) -> Complex {
-            Complex {
-                reel: self.reel * self.reel - self.imaginaire * self.imaginaire,
-                imaginaire: 2.0 * self.reel * self.imaginaire,
-            }
+        pub fn norm_sqr(&self) -> f64 {
+            self.reel * self.reel + self.imaginaire * self.imaginaire
         }
     }
 }
@@ -100,6 +93,7 @@ pub mod calcul_types{
 #[cfg(test)]
 mod tests {
     use super::calcul_types::*;
+    use approx::relative_eq;
 
     #[test]
     fn test_constructeur() {
@@ -140,20 +134,19 @@ mod tests {
 
     #[test]
     fn test_division() {
-        let z1 = Complex::new(3.0, 4.0);
-        let z2 = Complex::new(1.0, 2.0);
+        let z1 = Complex::new(1.4, 0.4);
+        let z2 = Complex::new(0.8, 0.8);
         let resultat = z1 / z2;
-
-        assert_eq!(resultat.reel, 2.0);
-        assert_eq!(resultat.imaginaire, 0.0);
+    
+        assert!(relative_eq!(resultat.reel, 1.125, epsilon = f64::EPSILON));
+        assert!(relative_eq!(resultat.imaginaire, -0.625, epsilon = f64::EPSILON));
     }
-
+    
     #[test]
     fn test_norm_sqr() {
         let z = Complex::new(3.0, 4.0);
         let norm_sqr = z.norm_sqr();
-
-        assert_eq!(norm_sqr.reel, -7.0);
-        assert_eq!(norm_sqr.imaginaire, 24.0);
+    
+        assert_eq!(norm_sqr, 25.0); // 3^2 + 4^2 = 9 + 16 = 25
     }
 }

@@ -10,3 +10,6 @@ path = "src/types.rs"
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }
+
+[dev-dependencies]
+approx = "0.5.1"
