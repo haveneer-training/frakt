@@ -54,4 +54,18 @@ pub mod calcul_types{
             }
         }
     }
+
+    impl Complex {
+
+        pub fn new(reel: f64, imaginaire: f64) -> Complex {
+            Complex { reel, imaginaire }
+        }
+        // Fonction pour calculer la norme au carré
+        pub fn norm_sqr(&self) -> Complex {
+            Complex {
+                reel: self.reel * self.reel - self.imaginaire * self.imaginaire,
+                imaginaire: 2.0 * self.reel * self.imaginaire,
+            }
+        }
+    }
 }
