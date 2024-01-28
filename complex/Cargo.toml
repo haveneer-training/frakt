@@ -1,15 +1,9 @@
 [package]
-name = "shared"
+name = "complex"
 version = "0.1.0"
 edition = "2021"
 
-[lib]
-name = "shared"
-path = "src/lib.rs"
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 serde = { version = "1.0.195", features = ["derive"] }
-serde_json = "1.0.111"
-
-complex = { path = "../complex" }
-

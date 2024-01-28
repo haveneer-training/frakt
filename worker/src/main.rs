@@ -1,8 +1,9 @@
-use shared::initate_request;
 use std::env::args;
-use std::io::Read;
+use std::io::{Read, Write};
 use std::mem::size_of;
 use std::net::TcpStream;
+
+use shared::networking::{create_result_message, decode_message, Fragment, ID_SIZE, initate_request};
 use worker::validate_worker_argument;
 
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -11,28 +12,47 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let arguments: Vec<String> = args().collect();
     let server_address = validate_worker_argument(arguments)?;
 
-    println!("Connecting to server on address {}...", server_address);
+    println!("\nConnecting to server on address {}...", server_address);
     let mut stream = TcpStream::connect(server_address)?;
     println!("Connected to server on address {}", server_address);
     let mut buffer: Vec<u8> = Vec::new();
 
     initate_request(&mut buffer, &mut stream)?;
 
-    let size_written = stream.read_to_end(&mut buffer)?;
-    println!("Size written: {}", size_written);
+    loop {
+        buffer.clear();
 
-    let size_bytes = &buffer[0..4];
-    let size_array: [u8; 4] = [size_bytes[0], size_bytes[1], size_bytes[2], size_bytes[3]];
-    let total_message_size = u32::from_be_bytes(size_array);
-    println!("Size of total message: {}", total_message_size);
+        println!("\nWaiting for a Task...\n");
+        let size_written = stream.read_to_end(&mut buffer)?;
+        println!("Received {} bytes", size_written);
+        if size_written < (size_of::<u32>() * 2) {
+            println!("Error: no data received");
+            return Ok(());
+        }
+        drop(stream);
 
-    let size_bytes = &buffer[4..8];
-    let size_array = [size_bytes[0], size_bytes[1], size_bytes[2], size_bytes[3]];
-    let json_message_size = u32::from_be_bytes(size_array);
-    println!("Size of json message: {}", json_message_size);
-    let json = String::from_utf8_lossy(&buffer[8..(8 + json_message_size as usize)]);
-    print!("Json: {}", json);
 
-    println!("End of worker");
+        let (fragment, data) = decode_message(&buffer)?;
+        match fragment {
+            Fragment::FragmentTask(task) => {
+                let mut buffer = Vec::new();
+                let task_id = &data[..ID_SIZE].try_into()?;
+                println!("Preparing result...");
+                create_result_message(task, task_id, &mut buffer)?;
+                // In the same stream, we send the result then receive a new Task
+                println!("Reconnecting to server on address {}...", server_address);
+                stream = TcpStream::connect(server_address)?;
+                println!("Sending result...");
+                stream.write(&buffer)?;
+            }
+            _ => {
+                println!("Error: unexpected fragment");
+                println!("Exiting worker...");
+                break;
+            }
+        }
+    }
+
+    println!("\n\nEnd of worker");
     return Ok(());
 }
