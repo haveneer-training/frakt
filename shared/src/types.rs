@@ -59,6 +59,13 @@ pub mod messages_types {
         pub maximal_work_load: u32,
     }
 
+    impl FragmentRequest {
+
+        pub fn new(worker_name: String, maximal_work_load: u32) -> FragmentRequest {
+            FragmentRequest { worker_name, maximal_work_load }
+        }
+    }
+
     // Structure de tâche de fragment
     #[derive(Debug, Serialize, PartialEq, Deserialize)]
     pub struct FragmentTask {
@@ -69,6 +76,14 @@ pub mod messages_types {
         pub range: Range,
     }
 
+    impl FragmentTask {
+
+        pub fn new(id: U8Data, max_iteration: u16,resolution: Resolution ,range: Range ) -> FragmentTask {
+            //on pourrait générer l'id a partir de cette methode
+            FragmentTask { id, max_iteration, resolution, range}
+        }
+    }
+
     // Structure de résultat de fragment
     #[derive(Debug, Serialize, PartialEq, Deserialize)]
     pub struct FragmentResult {
@@ -76,6 +91,14 @@ pub mod messages_types {
         pub resolution: Resolution,
         pub range: Range,
         pub pixels: PixelData,
+    }
+
+    impl FragmentResult {
+
+        pub fn new(id: U8Data, resolution: Resolution ,range: Range, pixels: PixelData ) -> FragmentResult {
+            //on pourrait générer l'id a partir de cette methode
+            FragmentResult { id, resolution, range, pixels}
+        }
     }
 
 }
