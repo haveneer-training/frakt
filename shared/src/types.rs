@@ -52,6 +52,13 @@ pub mod messages_types {
         pub count: u32,
     }
 
+    impl U8Data {
+
+        pub fn new(offset: u32, count: u32) -> U8Data {
+            U8Data { offset, count }
+        }
+    }
+
     // Structure de demande de fragment
     #[derive(Debug, Serialize, PartialEq, Deserialize)]
     pub struct FragmentRequest {
