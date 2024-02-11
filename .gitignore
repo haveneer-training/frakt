@@ -65,3 +65,5 @@ config.toml
 # Added by cargo
 
 /target
+
+last_image_client.png

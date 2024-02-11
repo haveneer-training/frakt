@@ -1,7 +1,8 @@
-use std::{net::{TcpListener, TcpStream}, io};
+use std::{net::{TcpListener, TcpStream}, io, process::{exit}, thread, time::Duration};
 
-use blue_box::{models::network::Network, types::{protocols::{FragmentRequest, Fragment, FragmentTask, FragmentResult}, desc::{U8Data, Resolution, Range, Point}, fractal_type::{FractalDescriptor, JuliaDescriptor}}, utils::json};
+use blue_box::{models::network::Network, types::{protocols::{FragmentRequest, Fragment, FragmentTask, FragmentResult}, desc::{U8Data, Resolution, Range, Point}, fractal_type::{FractalDescriptor, JuliaDescriptor}}};
 use cmplx_nbr::Complex;
+use log::{trace, info, debug};
 
 #[derive(Debug)]
 pub struct Server {
@@ -20,37 +21,27 @@ impl Server {
         TcpListener::bind(self.network.get_fulladdress())
     }
 
-    pub fn get_work_request(
-        stream: &mut TcpStream,
-    ) -> Result<(FragmentRequest, Vec<u8>), io::Error> {
-        match Network::read_message(stream) {
-            Ok((Fragment::FragmentRequest(fragment), data)) => Ok((fragment, data)),
-            Ok((Fragment::FragmentTask(_), _)) => Err(io::Error::new(
-                io::ErrorKind::UnexpectedEof,
-                "Did not send a job request",
-            )),
-            Ok((Fragment::FragmentResult(_), _)) => Err(io::Error::new(
-                io::ErrorKind::UnexpectedEof,
-                "Did not send a job request",
-            )),
-            Err(err) => Err(err),
-        }
+    pub fn read_messge_from_client(stream: &mut TcpStream) -> Result<(Fragment, Vec<u8>), io::Error>{
+        return Network::read_message(stream);
     }
 
-    pub fn send_work(stream: &mut TcpStream) -> Result<(), io::Error> {
+    pub fn send_work(
+        stream: &mut TcpStream,
+        fragment_request: &FragmentRequest
+    ) -> Result<(), io::Error> {
         let test_fragment_task = FragmentTask {
             id: U8Data {
-                offset: 13,
-                count: 13,
+                offset: 0,
+                count: 3,
             },
             fractal: {
                 FractalDescriptor::Julia(JuliaDescriptor {
-                    c: Complex{ re: 13.2, im: 13.2 },
-                    divergence_threshold_square: 13.4,
+                    c: Complex{ re: 0.285, im: 0.013 },
+                    divergence_threshold_square: 4.0,
                 })
             },
-            max_iteration: 0,
-            resolution: Resolution { nx: 100, ny: 100 },
+            max_iteration: 64,
+            resolution: Resolution { nx: 1, ny: 1},
             range: Range {
                 min: Point { x: 13.4, y: 18.4 },
                 max: Point { x: 13.4, y: 18.4 },
@@ -59,25 +50,45 @@ impl Server {
 
         let network_test_fragment = Fragment::FragmentTask(test_fragment_task);
 
-        let mut data_tmp: Vec<u8> = Vec::new();
+        let mut data_tmp: Vec<u8> = vec![13, 12, 14];
         Network::send_message(stream, network_test_fragment, &mut data_tmp)?;
 
         Ok(())
     }
 
-    pub fn get_work_done(stream: &mut TcpStream) -> Result<(FragmentResult, Vec<u8>), io::Error> {
-        match Network::read_message(stream) {
-            Ok((Fragment::FragmentResult(fragment), data)) => Ok((fragment, data)),
-            Ok((Fragment::FragmentTask(_), _)) => Err(io::Error::new(
-                io::ErrorKind::UnexpectedEof,
-                "Did not send a job done",
-            )),
-            Ok((Fragment::FragmentRequest(_), _)) => Err(io::Error::new(
-                io::ErrorKind::UnexpectedEof,
-                "Did not send a job done",
-            )),
-            Err(err) => Err(err),
-        }
+    pub fn get_work_done(
+        stream: &mut TcpStream,
+        fragment_result: &FragmentResult,
+        data: Vec<u8>
+    ) -> Result<(), io::Error> {
+        trace!("Data recived : {data:?}");
+        Ok(())
     }
 
+    pub fn handle_client(stream: &mut TcpStream) -> Result<(), io::Error> {
+        info!("Incoming connection {stream:?}");
+
+        match Server::read_messge_from_client(stream){
+            Ok((Fragment::FragmentRequest(fragment), _)) => {
+                debug!("Work request received");
+                Server::send_work(stream, &fragment);
+            },
+            Ok((Fragment::FragmentResult(fragment), data)) => {
+                debug!("Work done");
+                Server::get_work_done(stream, &fragment, data);
+                thread::sleep(Duration::from_millis(505));
+            },
+            Ok((Fragment::FragmentTask(_), _)) => {
+                return Err(io::Error::new(
+                    io::ErrorKind::UnexpectedEof,
+                    "The worker send a task",
+                ));
+            },
+            Err(err) => {
+                return Err(err);
+            }
+        };
+
+        Ok(())
+    }
 }
