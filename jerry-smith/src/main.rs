@@ -1,14 +1,15 @@
 mod models;
 mod utils;
 
-use std::{process, net::TcpStream, io};
+use std::{process, net::TcpStream, io };
 
-use log::{error, info, warn};
+use blue_box::types::protocols::Fragment;
+use log::{error, info, warn, debug};
 use models::server::Server;
 use utils::config::Config;
 
 fn main() {
-    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("debug")).init();
+    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("trace")).init();
 
     let config = Config::read();
 
@@ -39,20 +40,26 @@ fn main() {
 fn handle_client(stream: &mut TcpStream) -> Result<(), io::Error> {
     info!("Incoming connection {stream:?}");
 
-    let _fragment_request = Server::get_work_request(stream)?;
-
-    Server::send_work(stream)?;
-
-    let fragment_result_result = Server::get_work_done(stream);
-
-    // let data: Vec<u8>;
-    // let fragment_result = match fragment_result_result {
-    //     Ok((fragment, data_in)) => {
-    //         data = data_in;
-    //         fragment
-    //     },
-    //     Err(err) => return Err(err),
-    // };
+    match Server::read_messge_from_client(stream){
+        Ok((Fragment::FragmentRequest(fragment), _)) => {
+            debug!("Work request received");
+            Server::send_work(stream, &fragment);
+        },
+        Ok((Fragment::FragmentResult(fragment), data)) => {
+            debug!("Work done");
+            Server::get_work_done(stream, &fragment, data);
+            process::exit(0);
+        },
+        Ok((Fragment::FragmentTask(_), _)) => {
+            return Err(io::Error::new(
+                io::ErrorKind::UnexpectedEof,
+                "The worker send a task",
+            ));
+        },
+        Err(err) => {
+            return Err(err);
+        }
+    };
 
     Ok(())
 }

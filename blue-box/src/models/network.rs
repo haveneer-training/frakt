@@ -84,9 +84,6 @@ impl Network  {
         let mut data = vec![0_u8; data_message_size as usize];
         stream.read(&mut data)?;
 
-        // debug!("Data size: {:?}", data.len());
-        // let data = String::from_utf8_lossy(&data_len_buf);
-
         Ok((fragment, data))
     }
 
