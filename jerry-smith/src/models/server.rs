@@ -1,8 +1,8 @@
-use std::{net::{TcpListener, TcpStream}, io};
+use std::{net::{TcpListener, TcpStream}, io, process::{exit}, thread, time::Duration};
 
 use blue_box::{models::network::Network, types::{protocols::{FragmentRequest, Fragment, FragmentTask, FragmentResult}, desc::{U8Data, Resolution, Range, Point}, fractal_type::{FractalDescriptor, JuliaDescriptor}}};
 use cmplx_nbr::Complex;
-use log::trace;
+use log::{trace, info, debug};
 
 #[derive(Debug)]
 pub struct Server {
@@ -65,4 +65,30 @@ impl Server {
         Ok(())
     }
 
+    pub fn handle_client(stream: &mut TcpStream) -> Result<(), io::Error> {
+        info!("Incoming connection {stream:?}");
+
+        match Server::read_messge_from_client(stream){
+            Ok((Fragment::FragmentRequest(fragment), _)) => {
+                debug!("Work request received");
+                Server::send_work(stream, &fragment);
+            },
+            Ok((Fragment::FragmentResult(fragment), data)) => {
+                debug!("Work done");
+                Server::get_work_done(stream, &fragment, data);
+                thread::sleep(Duration::from_millis(505));
+            },
+            Ok((Fragment::FragmentTask(_), _)) => {
+                return Err(io::Error::new(
+                    io::ErrorKind::UnexpectedEof,
+                    "The worker send a task",
+                ));
+            },
+            Err(err) => {
+                return Err(err);
+            }
+        };
+
+        Ok(())
+    }
 }
