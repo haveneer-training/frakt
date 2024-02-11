@@ -1,22 +1,34 @@
-use std::{fs, io};
+use std::{fs, io, u16};
 use log::{debug, warn, trace};
 use serde::{Serialize, Deserialize};
 
 #[derive(Debug)]
 pub struct Config {
     pub server_address: String,
-    pub port: String
+    pub port: String,
+    pub width: u16,
+    pub height: u16
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 struct ConfigToml {
     server: Option<ConfigServer>,
+    display: Option<ConfigDisplay>
 }
+
 #[derive(Debug, Serialize, Deserialize)]
 struct ConfigServer {
     server_address: Option<String>,
     port: Option<String>
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+struct ConfigDisplay {
+    width: Option<u16>,
+    height: Option<u16> 
+}
+
+// FIX: Possible to make this file cleaner
 
 impl Config {
     pub fn read() -> Self {
@@ -46,7 +58,8 @@ impl Config {
             Ok(r) => r,
             Err(_) => {
                 ConfigToml{
-                    server: None
+                    server: None,
+                    display: None
                 }
             }
         };
@@ -73,10 +86,32 @@ impl Config {
             }
         };
 
+        let (width, height): (u16, u16) = match config_toml.display {
+            Some(display) => {
+                let wi: u16 = display.width.unwrap_or_else(|| {
+                    warn!("Missing field width in table display");
+                    400
+                });
+
+                let he: u16 = display.height.unwrap_or_else(|| {
+                    warn!("Missing field height in table display");
+                    400
+                });
+
+                (wi, he)
+            },
+            None => {
+                warn!("Missing table display, default value will be use?");
+                (400, 400)
+            }
+        };
+
 
         Config{
             server_address,
             port,
+            width,
+            height
         }
     }
 }
