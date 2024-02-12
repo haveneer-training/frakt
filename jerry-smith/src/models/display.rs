@@ -1,7 +1,7 @@
-use std::sync::mpsc::Receiver;
+use std::{sync::mpsc::Receiver, u64};
 
 use blue_box::{utils::colors::{color_palette, self}, types::desc::PixelIntensity};
-use log::info;
+use log::{info, warn, debug};
 use pixels::{SurfaceTexture, Pixels, Error};
 use winit::{
     dpi::{LogicalSize},
@@ -49,7 +49,7 @@ impl DisplayFractal{
             if let Ok(data_intensity) = rx.try_recv() {
                 let colors = DisplayFractal::from_count_to_colors(data_intensity);
                 DisplayFractal::draw(
-                    &mut pixels.frame_mut(),
+                    pixels.frame_mut(),
                     colors
                 );
                 pixels.render();
@@ -66,22 +66,18 @@ impl DisplayFractal{
     }
 
     fn draw(frame: &mut [u8], colors: Vec<(u8, u8, u8)>) {
+        // INFO: After the 50_000 th pixels start to juste show one color
         for (i, pixel) in frame.chunks_exact_mut(4).enumerate() {
-            if colors.is_empty() {
-                let rgba = [0x0, 0x0, 0x0, 0xff];
-                pixel.copy_from_slice(&rgba);
-            } else {
-                let (red, green, blue) = colors[i % colors.len()];
-                let rgba = [red, green, blue, 0xff];
-                pixel.copy_from_slice(&rgba);
-            }
+            let (red, green, blue) = colors[i % colors.len()];
+            let rgba = [red, green, blue, 0xff];
+            pixel.copy_from_slice(&rgba);
         }
     }
     
     fn from_count_to_colors(pis: Vec<PixelIntensity>) -> Vec<(u8, u8, u8)> {
         let mut rep: Vec<(u8, u8, u8)> = vec![];
         for pi in pis {
-            rep.push(color_palette(pi.count))
+            rep.push(color_palette(pi.count));
         }
         rep
     }
