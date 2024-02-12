@@ -1,6 +1,7 @@
 use std::sync::mpsc::Receiver;
 
-use blue_box::{utils::colors::color_palette, types::desc::PixelIntensity};
+use blue_box::{utils::colors::{color_palette, self}, types::desc::PixelIntensity};
+use log::info;
 use pixels::{SurfaceTexture, Pixels, Error};
 use winit::{
     dpi::{LogicalSize},
@@ -46,13 +47,14 @@ impl DisplayFractal{
 
         event_loop.run(move |event, _, control_flow| {
             if let Ok(data_intensity) = rx.try_recv() {
-                for intensity in data_intensity{
-                    let color: [u8; 3] = [255, 0, 0];
-                    let position = (100,100);
-                    DisplayFractal::set_pixel_color(&mut pixels, position, color, 400);
-                    DisplayFractal::set_pixel_color(&mut pixels, (200,200), color, 400);
-                }
+                let colors = DisplayFractal::from_count_to_colors(data_intensity);
+                DisplayFractal::draw(
+                    &mut pixels.frame_mut(),
+                    colors
+                );
+                pixels.render();
             }
+
             // Draw the current frame
             if let Event::RedrawRequested(_) = event {
                 if let Err(err) = pixels.render() {
@@ -63,16 +65,25 @@ impl DisplayFractal{
         });
     }
 
-    fn set_pixel_color(pixels: &mut Pixels, position: (usize, usize), color: [u8; 3], width: u32) {
-        let (x, y) = position;
-        let frame = pixels.frame_mut();
-        let index = (y * width as usize + x) * 4;
-        if index + 3 < frame.len() {
-            frame[index] = 0xFF; // R
-            frame[index + 1] = 0xFF; // G
-            frame[index + 2] = 0xFF; // B
-            frame[index + 3] = 0xFF; // A 
+    fn draw(frame: &mut [u8], colors: Vec<(u8, u8, u8)>) {
+        for (i, pixel) in frame.chunks_exact_mut(4).enumerate() {
+            if colors.is_empty() {
+                let rgba = [0x0, 0x0, 0x0, 0xff];
+                pixel.copy_from_slice(&rgba);
+            } else {
+                let (red, green, blue) = colors[i % colors.len()];
+                let rgba = [red, green, blue, 0xff];
+                pixel.copy_from_slice(&rgba);
+            }
         }
+    }
+    
+    fn from_count_to_colors(pis: Vec<PixelIntensity>) -> Vec<(u8, u8, u8)> {
+        let mut rep: Vec<(u8, u8, u8)> = vec![];
+        for pi in pis {
+            rep.push(color_palette(pi.count))
+        }
+        rep
     }
 
 }
