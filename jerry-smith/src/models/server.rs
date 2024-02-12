@@ -78,8 +78,8 @@ impl Server {
             max_iteration: 64,
             resolution: Resolution { nx: 400, ny: 400},
             range: Range {
-                min: Point { x: -200.0, y: 200.0 },
-                max: Point { x: -200.0, y: 200.0 },
+                min: Point { x: -1.2, y:-1.},
+                max: Point { x: 1.2, y: 1.2 },
             },
         };
 
