@@ -50,6 +50,17 @@ impl ops::Add for Complex {
     }
 }
 
+impl ops::Sub for Complex {
+    type Output = Self;
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self{
+            re : self.re - rhs.re,
+            im: self.im - rhs.im,
+        }
+    }
+
+}
+
 /// You can mult complex numbers together
 impl ops::Mul for Complex {
     type Output = Self;
@@ -59,4 +70,24 @@ impl ops::Mul for Complex {
         Self { re, im }
     }
 }
+
+impl std::ops::Div for Complex {
+    type Output = Self;
+
+    fn div(self, rhs: Self) -> Self {
+
+        let numerator_re = self.re * rhs.re + self.im * rhs.im;
+        let numerator_im = rhs.im * self.re - rhs.re * self.im;
+
+        let denominator = rhs.re * rhs.re + rhs.im * rhs.im;
+
+        Complex {
+
+            re: numerator_re / denominator,
+
+            im: numerator_im / denominator,
+        }
+    }
+}
+
 

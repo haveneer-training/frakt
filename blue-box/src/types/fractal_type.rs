@@ -1,4 +1,5 @@
 use std::io::Write;
+use std::ops::{Div, Sub};
 
 use cmplx_nbr::Complex;
 use image::{ImageBuffer, Rgb};
@@ -126,15 +127,17 @@ impl CalcFractal for NewtonRaphsonZ3 {
 
         let mut i = 0;
         while i < *max_iteration && z.norm() < 50.0 {
+            let numerator = Complex::new(z.norm(), 0.0) - z.sin();
+            let denominator = z.sin() * Complex::new(z.norm(), 0.0);
 
-            let numerator = z.norm() - z.sin();
-            let denominator = z.sin() * z.norm();
+
             z = z - numerator / denominator;
 
             i += 1;
         }
 
         ((z.norm() as f32), (i as f32 / *max_iteration as f32))
+
     }
 }
 
