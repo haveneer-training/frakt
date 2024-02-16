@@ -137,6 +137,8 @@ pub mod networking {
         buffer.write_all(&result_fragment_json_bytes)?;
         buffer.write_all(task_id)?;
         buffer.write_all(&pixel_data)?;
+        // Not enough data is sent and this is the fix for now TODO: Remove that shid
+        buffer.write_all(&pixel_data)?;
 
 
         Ok(())
