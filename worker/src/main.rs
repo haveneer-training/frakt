@@ -3,7 +3,9 @@ use std::io::{Read, Write};
 use std::mem::size_of;
 use std::net::TcpStream;
 
-use shared::networking::{create_result_message, decode_message, Fragment, ID_SIZE, initate_request};
+use shared::networking::{
+    create_result_message, decode_message, initate_request, Fragment, ID_SIZE,
+};
 use worker::validate_worker_argument;
 
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -30,7 +32,6 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
             return Ok(());
         }
         drop(stream);
-
 
         let (fragment, data) = decode_message(&buffer)?;
         match fragment {

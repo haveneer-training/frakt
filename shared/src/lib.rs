@@ -25,12 +25,8 @@ pub mod networking {
                 Fragment::FragmentRequest(fragment_request) => {
                     json!({"FragmentRequest": fragment_request}).to_string()
                 }
-                Fragment::FragmentTask(task) => {
-                    json!({"FragmentTask": task}).to_string()
-                }
-                Fragment::FragmentResult(result) => {
-                    json!({"FragmentResult": result}).to_string()
-                }
+                Fragment::FragmentTask(task) => json!({"FragmentTask": task}).to_string(),
+                Fragment::FragmentResult(result) => json!({"FragmentResult": result}).to_string(),
             }
         }
     }
@@ -73,8 +69,12 @@ pub mod networking {
         pub count: u32,
     }
 
-    pub fn initate_request(buffer: &mut Vec<u8>, stream: &mut TcpStream) -> std::result::Result<(), Box<dyn Error>> {
-        let fragment_request: Fragment = Fragment::FragmentRequest(Request::new("worker".to_string(), 100));
+    pub fn initate_request(
+        buffer: &mut Vec<u8>,
+        stream: &mut TcpStream,
+    ) -> std::result::Result<(), Box<dyn Error>> {
+        let fragment_request: Fragment =
+            Fragment::FragmentRequest(Request::new("worker".to_string(), 100));
         let fragment_request_str = fragment_request.to_json();
         println!("fragment_request_str: {}", fragment_request_str);
         let fragment_request_bytes = fragment_request_str.as_bytes();
@@ -88,7 +88,9 @@ pub mod networking {
     }
 
     /// Decode a message from a buffer returning its fragment and corresponding data
-    pub fn decode_message(buffer: &Vec<u8>) -> std::result::Result<(Fragment, &[u8]), Box<dyn Error>> {
+    pub fn decode_message(
+        buffer: &Vec<u8>,
+    ) -> std::result::Result<(Fragment, &[u8]), Box<dyn Error>> {
         if buffer.len() < 8 {
             return Err("Buffer too short".into());
         }
@@ -97,7 +99,8 @@ pub mod networking {
         let json_message_size = u32::from_be_bytes(buffer[4..8].try_into()?);
         let json_fragment = String::from_utf8_lossy(&buffer[8..(8 + json_message_size as usize)]);
         let fragment: Fragment = serde_json::from_str(&json_fragment)?;
-        let data_fragment = &buffer[(8 + json_message_size as usize)..(8 + total_message_size as usize)];
+        let data_fragment =
+            &buffer[(8 + json_message_size as usize)..(8 + total_message_size as usize)];
 
         Ok((fragment, data_fragment))
     }
@@ -122,16 +125,24 @@ pub mod networking {
             id: task.id.clone(),
             resolution: task.resolution.clone(),
             range: task.range.clone(),
-            pixels: PixelData { offset: ID_SIZE as u32, count: number_of_pixels },
+            pixels: PixelData {
+                offset: ID_SIZE as u32,
+                count: number_of_pixels,
+            },
         }
     }
 
-
-    pub fn create_result_message(task: Task, task_id: &[u8; ID_SIZE], buffer: &mut Vec<u8>) -> std::result::Result<(), Box<dyn Error>> {
+    pub fn create_result_message(
+        task: Task,
+        task_id: &[u8; ID_SIZE],
+        buffer: &mut Vec<u8>,
+    ) -> std::result::Result<(), Box<dyn Error>> {
         let (result_fragment_json_bytes, result_fragment_bytes_size) = create_result_bytes(&task);
         let number_of_pixels = task.resolution.nx as u32 * task.resolution.ny as u32;
         let pixel_data = create_pixel_data_fom_task(&task)?;
-        let total_message_size = result_fragment_bytes_size + (number_of_pixels * (size_of::<f64>() * 2) as u32) + task_id.len() as u32;
+        let total_message_size = result_fragment_bytes_size
+            + (number_of_pixels * (size_of::<f64>() * 2) as u32)
+            + task_id.len() as u32;
         buffer.write_all(&total_message_size.to_be_bytes())?;
         buffer.write_all(&result_fragment_bytes_size.to_be_bytes())?;
         buffer.write_all(&result_fragment_json_bytes)?;
@@ -140,7 +151,6 @@ pub mod networking {
         // Not enough data is sent and this is the fix for now TODO: Remove that shid
         buffer.write_all(&pixel_data)?;
 
-
         Ok(())
     }
 
@@ -148,7 +158,8 @@ pub mod networking {
         match task.fractal {
             FractalDescriptor::Julia(_) => {
                 let number_of_pixels = task.resolution.nx as u32 * task.resolution.ny as u32;
-                let mut pixel_data = Vec::with_capacity(number_of_pixels as usize * (size_of::<f64>() * 2));
+                let mut pixel_data =
+                    Vec::with_capacity(number_of_pixels as usize * (size_of::<f64>() * 2));
                 for pixel_number in 0..number_of_pixels {
                     let pixel_intensity = get_pixel_julia(&task, pixel_number);
                     pixel_data.write_all(&pixel_intensity.zn.to_be_bytes())?;
@@ -160,7 +171,10 @@ pub mod networking {
     }
 
     pub fn get_pixel_julia(task: &Task, pixel_number: u32) -> PixelIntensity {
-        let Julia { c, divergence_threshold_square } = match task.fractal {
+        let Julia {
+            c,
+            divergence_threshold_square,
+        } = match task.fractal {
             FractalDescriptor::Julia(ref julia) => julia,
         };
 
@@ -169,13 +183,18 @@ pub mod networking {
         let y = pixel_number / task.resolution.nx as u32;
 
         // Calculer les coordonnées réelles et imaginaires du point dans le plan complexe
-        let real = task.range.min.x + (task.range.max.x - task.range.min.x) * (x as f64) / (task.resolution.nx as f64 - 1.0);
-        let imag = task.range.min.y + (task.range.max.y - task.range.min.y) * (y as f64) / (task.resolution.ny as f64 - 1.0);
+        let real = task.range.min.x
+            + (task.range.max.x - task.range.min.x) * (x as f64)
+                / (task.resolution.nx as f64 - 1.0);
+        let imag = task.range.min.y
+            + (task.range.max.y - task.range.min.y) * (y as f64)
+                / (task.resolution.ny as f64 - 1.0);
 
         let mut z = complex::Complex { re: real, im: imag };
         let mut iter = 0;
 
-        while z.re * z.re + z.im * z.im <= *divergence_threshold_square && iter < task.max_iteration {
+        while z.re * z.re + z.im * z.im <= *divergence_threshold_square && iter < task.max_iteration
+        {
             z = z * z + *c;
             iter += 1;
         }
