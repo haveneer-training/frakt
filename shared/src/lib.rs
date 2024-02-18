@@ -181,12 +181,10 @@ pub mod networking {
         }
 
         /// Calcul de l'intensité du pixel basé sur le nombre d'itérations
-        // TODO fix intensity
         let intensity = if iter < task.max_iteration {
-            //iter as f32
-            0.8
+            iter as f32 / task.max_iteration as f32
         } else {
-            0.0
+            1.0
         };
 
         PixelIntensity {
