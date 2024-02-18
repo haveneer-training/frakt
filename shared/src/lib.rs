@@ -164,11 +164,11 @@ pub mod networking {
             FractalDescriptor::Julia(ref julia) => julia,
         };
 
-        /// Convertir le numéro de pixel en coordonnées x, y
+        // Convertir le numéro de pixel en coordonnées x, y
         let x = pixel_number % task.resolution.nx as u32;
         let y = pixel_number / task.resolution.nx as u32;
 
-        /// Calculer les coordonnées réelles et imaginaires du point dans le plan complexe
+        // Calculer les coordonnées réelles et imaginaires du point dans le plan complexe
         let real = task.range.min.x + (task.range.max.x - task.range.min.x) * (x as f64) / (task.resolution.nx as f64 - 1.0);
         let imag = task.range.min.y + (task.range.max.y - task.range.min.y) * (y as f64) / (task.resolution.ny as f64 - 1.0);
 
@@ -180,7 +180,7 @@ pub mod networking {
             iter += 1;
         }
 
-        /// Calcul de l'intensité du pixel basé sur le nombre d'itérations
+        // Calcul de l'intensité du pixel basé sur le nombre d'itérations
         let intensity = if iter < task.max_iteration {
             iter as f32 / task.max_iteration as f32
         } else {
