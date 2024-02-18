@@ -1,5 +1,5 @@
-use std::ops::{Add, Mul};
 use serde::{Deserialize, Serialize};
+use std::ops::{Add, Mul};
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
 pub struct Complex {
