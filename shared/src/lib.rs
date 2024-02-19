@@ -200,21 +200,16 @@ pub mod networking {
         (real_part, imaginary_part)
     }
 
-    fn iterate_julia(
-        julia: &Julia,
-        real_part: f64,
-        imaginary_part: f64,
-        max_iteration: u32,
+    fn iterate_fractal(
+        mut z: Complex,
+        c: Complex,
+        divergence_threshold_square: f64,
+        max_iteration: u32
     ) -> PixelIntensity {
-        let mut z = Complex {
-            re: real_part,
-            im: imaginary_part,
-        };
         let mut iter = 0;
 
-        while z.re * z.re + z.im * z.im <= julia.divergence_threshold_square && iter < max_iteration
-        {
-            z = z * z + julia.c;
+        while z.norm_sqr() <= divergence_threshold_square && iter < max_iteration {
+            z = z * z + c;
             iter += 1;
         }
 
@@ -230,33 +225,16 @@ pub mod networking {
         }
     }
 
-    fn iterate_mandelbrot(
-        real_part: f64,
-        imaginary_part: f64,
-        max_iteration: u32,
-    ) -> PixelIntensity {
-        let c = Complex {
-            re: real_part,
-            im: imaginary_part,
-        };
-        let mut z = Complex { re: 0.0, im: 0.0 };
-        let mut iter = 0;
+    fn iterate_julia(julia: &Julia, real_part: f64, imaginary_part: f64, max_iteration: u32) -> PixelIntensity {
+        let z = Complex { re: real_part, im: imaginary_part };
+        let c = julia.c;
+        iterate_fractal(z, c, julia.divergence_threshold_square, max_iteration)
+    }
 
-        while z.norm_sqr() <= 4.0 && iter < max_iteration {
-            z = z * z + c;
-            iter += 1;
-        }
-
-        let intensity = if iter < max_iteration {
-            iter as f32 / max_iteration as f32
-        } else {
-            1.0
-        };
-
-        PixelIntensity {
-            zn: z.norm() as f32,
-            count: intensity,
-        }
+    fn iterate_mandelbrot(real_part: f64, imaginary_part: f64, max_iteration: u32) -> PixelIntensity {
+        let z = Complex { re: 0.0, im: 0.0 };
+        let c = Complex { re: real_part, im: imaginary_part };
+        iterate_fractal(z, c, 4.0, max_iteration)
     }
 }
 
