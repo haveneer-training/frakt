@@ -44,7 +44,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
                 println!("Reconnecting to server on address {}...", server_address);
                 stream = TcpStream::connect(server_address)?;
                 println!("Sending result...");
-                stream.write(&buffer)?;
+                stream.write_all(&buffer)?;
             }
             _ => {
                 println!("Error: unexpected fragment");
@@ -55,5 +55,5 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     println!("\n\nEnd of worker");
-    return Ok(());
+    Ok(())
 }
