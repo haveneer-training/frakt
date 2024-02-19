@@ -12,6 +12,11 @@ impl Complex {
     pub fn norm(&self) -> f64 {
         (self.re.powi(2) + self.im.powi(2)).sqrt()
     }
+
+    /// Calculates the square of the norm of the complex number, without taking the square root
+    pub fn norm_sqr(&self) -> f64 {
+        self.re.powi(2) + self.im.powi(2)
+    }
 }
 
 impl Add for Complex {

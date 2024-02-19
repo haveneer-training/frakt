@@ -4,6 +4,7 @@ pub mod networking {
     use std::mem::size_of;
     use std::net::TcpStream;
 
+    use complex::Complex;
     use serde::{Deserialize, Serialize};
     use serde_json::json;
 
@@ -155,53 +156,65 @@ pub mod networking {
     }
 
     fn create_pixel_data_fom_task(task: &Task) -> std::result::Result<Vec<u8>, Box<dyn Error>> {
+        let number_of_pixels = task.resolution.nx as u32 * task.resolution.ny as u32;
+        let mut pixel_data = Vec::with_capacity(number_of_pixels as usize * (size_of::<f64>() * 2));
+        for pixel_number in 0..number_of_pixels {
+            let pixel_intensity = get_pixel_intensity(&task, pixel_number);
+            pixel_data.write_all(&pixel_intensity.zn.to_be_bytes())?;
+            pixel_data.write_all(&pixel_intensity.count.to_be_bytes())?;
+        }
+        Ok(pixel_data)
+    }
+
+    pub fn get_pixel_intensity(task: &Task, pixel_number: u32) -> PixelIntensity {
+        let (x, y) = get_coordinates_from_pixel_number(pixel_number, &task.resolution);
+        let (real_part, imaginary_part) =
+            get_complex_from_coordinates(&task.range, x, y, &task.resolution);
+
         match task.fractal {
-            FractalDescriptor::Julia(_) => {
-                let number_of_pixels = task.resolution.nx as u32 * task.resolution.ny as u32;
-                let mut pixel_data =
-                    Vec::with_capacity(number_of_pixels as usize * (size_of::<f64>() * 2));
-                for pixel_number in 0..number_of_pixels {
-                    let pixel_intensity = get_pixel_julia(&task, pixel_number);
-                    pixel_data.write_all(&pixel_intensity.zn.to_be_bytes())?;
-                    pixel_data.write_all(&pixel_intensity.count.to_be_bytes())?;
-                }
-                Ok(pixel_data)
+            FractalDescriptor::Julia(ref julia) => {
+                iterate_julia(julia, real_part, imaginary_part, task.max_iteration)
+            }
+            FractalDescriptor::Mandelbrot(..) => {
+                iterate_mandelbrot(real_part, imaginary_part, task.max_iteration)
             }
         }
     }
 
-    pub fn get_pixel_julia(task: &Task, pixel_number: u32) -> PixelIntensity {
-        let Julia {
-            c,
-            divergence_threshold_square,
-        } = match task.fractal {
-            FractalDescriptor::Julia(ref julia) => julia,
-        };
+    fn get_coordinates_from_pixel_number(pixel_number: u32, resolution: &Resolution) -> (u32, u32) {
+        let x = pixel_number % resolution.nx as u32;
+        let y = pixel_number / resolution.nx as u32;
+        (x, y)
+    }
 
-        // Convertir le numéro de pixel en coordonnées x, y
-        let x = pixel_number % task.resolution.nx as u32;
-        let y = pixel_number / task.resolution.nx as u32;
+    fn get_complex_from_coordinates(
+        range: &Range,
+        x: u32,
+        y: u32,
+        resolution: &Resolution,
+    ) -> (f64, f64) {
+        let real_part =
+            range.min.x + (range.max.x - range.min.x) * (x as f64) / (resolution.nx as f64 - 1.0);
+        let imaginary_part =
+            range.min.y + (range.max.y - range.min.y) * (y as f64) / (resolution.ny as f64 - 1.0);
+        (real_part, imaginary_part)
+    }
 
-        // Calculer les coordonnées réelles et imaginaires du point dans le plan complexe
-        let real = task.range.min.x
-            + (task.range.max.x - task.range.min.x) * (x as f64)
-                / (task.resolution.nx as f64 - 1.0);
-        let imag = task.range.min.y
-            + (task.range.max.y - task.range.min.y) * (y as f64)
-                / (task.resolution.ny as f64 - 1.0);
-
-        let mut z = complex::Complex { re: real, im: imag };
+    fn iterate_fractal(
+        mut z: Complex,
+        c: Complex,
+        divergence_threshold_square: f64,
+        max_iteration: u32,
+    ) -> PixelIntensity {
         let mut iter = 0;
 
-        while z.re * z.re + z.im * z.im <= *divergence_threshold_square && iter < task.max_iteration
-        {
-            z = z * z + *c;
+        while z.norm_sqr() <= divergence_threshold_square && iter < max_iteration {
+            z = z * z + c;
             iter += 1;
         }
 
-        // Calcul de l'intensité du pixel basé sur le nombre d'itérations
-        let intensity = if iter < task.max_iteration {
-            iter as f32 / task.max_iteration as f32
+        let intensity = if iter < max_iteration {
+            iter as f32 / max_iteration as f32
         } else {
             1.0
         };
@@ -210,6 +223,33 @@ pub mod networking {
             zn: z.norm() as f32,
             count: intensity,
         }
+    }
+
+    fn iterate_julia(
+        julia: &Julia,
+        real_part: f64,
+        imaginary_part: f64,
+        max_iteration: u32,
+    ) -> PixelIntensity {
+        let z = Complex {
+            re: real_part,
+            im: imaginary_part,
+        };
+        let c = julia.c;
+        iterate_fractal(z, c, julia.divergence_threshold_square, max_iteration)
+    }
+
+    fn iterate_mandelbrot(
+        real_part: f64,
+        imaginary_part: f64,
+        max_iteration: u32,
+    ) -> PixelIntensity {
+        let z = Complex { re: 0.0, im: 0.0 };
+        let c = Complex {
+            re: real_part,
+            im: imaginary_part,
+        };
+        iterate_fractal(z, c, 4.0, max_iteration)
     }
 }
 
@@ -221,6 +261,7 @@ pub mod fractal {
     #[derive(Debug, Serialize, Deserialize)]
     pub enum FractalDescriptor {
         Julia(Julia),
+        Mandelbrot(Option<Mandelbrot>),
     }
 
     #[derive(Debug, Serialize, Deserialize)]
@@ -228,6 +269,9 @@ pub mod fractal {
         pub c: Complex,
         pub divergence_threshold_square: f64,
     }
+
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct Mandelbrot {}
 }
 
 pub mod image {
