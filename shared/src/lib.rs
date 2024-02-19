@@ -163,14 +163,12 @@ pub mod networking {
         match task.fractal {
             FractalDescriptor::Julia(ref julia) => {
                 iterate_julia(julia, real_part, imaginary_part, task.max_iteration)
-            }
+            },
+            FractalDescriptor::Mandelbrot(..) => {
+                iterate_mandelbrot(real_part, imaginary_part, task.max_iteration)
+            },
         }
     }
-
-    pub fn get_pixel_julia(task: &Task, pixel_number: u32) -> PixelIntensity {
-        let Julia { c, divergence_threshold_square } = match task.fractal {
-            FractalDescriptor::Julia(ref julia) => julia,
-        };
 
     fn get_coordinates_from_pixel_number(pixel_number: u32, resolution: &Resolution) -> (u32, u32) {
         let x = pixel_number % resolution.nx as u32;
@@ -204,6 +202,28 @@ pub mod networking {
             count: intensity,
         }
     }
+
+    fn iterate_mandelbrot(real_part: f64, imaginary_part: f64, max_iteration: u32) -> PixelIntensity {
+        let c = Complex { re: real_part, im: imaginary_part };
+        let mut z = Complex { re: 0.0, im: 0.0 };
+        let mut iter = 0;
+
+        while z.norm_sqr() <= 4.0 && iter < max_iteration {
+            z = z * z + c;
+            iter += 1;
+        }
+
+        let intensity = if iter < max_iteration {
+            iter as f32 / max_iteration as f32
+        } else {
+            1.0
+        };
+
+        PixelIntensity {
+            zn: z.norm() as f32,
+            count: intensity,
+        }
+    }
 }
 
 pub mod fractal {
@@ -214,12 +234,17 @@ pub mod fractal {
     #[derive(Debug, Serialize, Deserialize)]
     pub enum FractalDescriptor {
         Julia(Julia),
+        Mandelbrot(Option<Mandelbrot>),
     }
 
     #[derive(Debug, Serialize, Deserialize)]
     pub struct Julia {
         pub c: Complex,
         pub divergence_threshold_square: f64,
+    }
+
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct Mandelbrot {
     }
 }
 
