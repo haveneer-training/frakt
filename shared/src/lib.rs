@@ -4,9 +4,9 @@ pub mod networking {
     use std::mem::size_of;
     use std::net::TcpStream;
 
+    use complex::Complex;
     use serde::{Deserialize, Serialize};
     use serde_json::json;
-    use complex::Complex;
 
     use crate::fractal::{FractalDescriptor, Julia};
     use crate::image::{PixelData, PixelIntensity, Range, Resolution};
@@ -26,12 +26,8 @@ pub mod networking {
                 Fragment::FragmentRequest(fragment_request) => {
                     json!({"FragmentRequest": fragment_request}).to_string()
                 }
-                Fragment::FragmentTask(task) => {
-                    json!({"FragmentTask": task}).to_string()
-                }
-                Fragment::FragmentResult(result) => {
-                    json!({"FragmentResult": result}).to_string()
-                }
+                Fragment::FragmentTask(task) => json!({"FragmentTask": task}).to_string(),
+                Fragment::FragmentResult(result) => json!({"FragmentResult": result}).to_string(),
             }
         }
     }
@@ -74,8 +70,12 @@ pub mod networking {
         pub count: u32,
     }
 
-    pub fn initate_request(buffer: &mut Vec<u8>, stream: &mut TcpStream) -> std::result::Result<(), Box<dyn Error>> {
-        let fragment_request: Fragment = Fragment::FragmentRequest(Request::new("worker".to_string(), 100));
+    pub fn initate_request(
+        buffer: &mut Vec<u8>,
+        stream: &mut TcpStream,
+    ) -> std::result::Result<(), Box<dyn Error>> {
+        let fragment_request: Fragment =
+            Fragment::FragmentRequest(Request::new("worker".to_string(), 100));
         let fragment_request_str = fragment_request.to_json();
         println!("fragment_request_str: {}", fragment_request_str);
         let fragment_request_bytes = fragment_request_str.as_bytes();
@@ -89,7 +89,9 @@ pub mod networking {
     }
 
     /// Decode a message from a buffer returning its fragment and corresponding data
-    pub fn decode_message(buffer: &Vec<u8>) -> std::result::Result<(Fragment, &[u8]), Box<dyn Error>> {
+    pub fn decode_message(
+        buffer: &Vec<u8>,
+    ) -> std::result::Result<(Fragment, &[u8]), Box<dyn Error>> {
         if buffer.len() < 8 {
             return Err("Buffer too short".into());
         }
@@ -98,7 +100,8 @@ pub mod networking {
         let json_message_size = u32::from_be_bytes(buffer[4..8].try_into()?);
         let json_fragment = String::from_utf8_lossy(&buffer[8..(8 + json_message_size as usize)]);
         let fragment: Fragment = serde_json::from_str(&json_fragment)?;
-        let data_fragment = &buffer[(8 + json_message_size as usize)..(8 + total_message_size as usize)];
+        let data_fragment =
+            &buffer[(8 + json_message_size as usize)..(8 + total_message_size as usize)];
 
         Ok((fragment, data_fragment))
     }
@@ -123,16 +126,24 @@ pub mod networking {
             id: task.id.clone(),
             resolution: task.resolution.clone(),
             range: task.range.clone(),
-            pixels: PixelData { offset: ID_SIZE as u32, count: number_of_pixels },
+            pixels: PixelData {
+                offset: ID_SIZE as u32,
+                count: number_of_pixels,
+            },
         }
     }
 
-
-    pub fn create_result_message(task: Task, task_id: &[u8; ID_SIZE], buffer: &mut Vec<u8>) -> std::result::Result<(), Box<dyn Error>> {
+    pub fn create_result_message(
+        task: Task,
+        task_id: &[u8; ID_SIZE],
+        buffer: &mut Vec<u8>,
+    ) -> std::result::Result<(), Box<dyn Error>> {
         let (result_fragment_json_bytes, result_fragment_bytes_size) = create_result_bytes(&task);
         let number_of_pixels = task.resolution.nx as u32 * task.resolution.ny as u32;
         let pixel_data = create_pixel_data_fom_task(&task)?;
-        let total_message_size = result_fragment_bytes_size + (number_of_pixels * (size_of::<f64>() * 2) as u32) + task_id.len() as u32;
+        let total_message_size = result_fragment_bytes_size
+            + (number_of_pixels * (size_of::<f64>() * 2) as u32)
+            + task_id.len() as u32;
         buffer.write_all(&total_message_size.to_be_bytes())?;
         buffer.write_all(&result_fragment_bytes_size.to_be_bytes())?;
         buffer.write_all(&result_fragment_json_bytes)?;
@@ -140,7 +151,6 @@ pub mod networking {
         buffer.write_all(&pixel_data)?;
         // Not enough data is sent and this is the fix for now TODO: Remove that shid
         buffer.write_all(&pixel_data)?;
-
 
         Ok(())
     }
@@ -158,15 +168,16 @@ pub mod networking {
 
     pub fn get_pixel_intensity(task: &Task, pixel_number: u32) -> PixelIntensity {
         let (x, y) = get_coordinates_from_pixel_number(pixel_number, &task.resolution);
-        let (real_part, imaginary_part) = get_complex_from_coordinates(&task.range, x, y, &task.resolution);
+        let (real_part, imaginary_part) =
+            get_complex_from_coordinates(&task.range, x, y, &task.resolution);
 
         match task.fractal {
             FractalDescriptor::Julia(ref julia) => {
                 iterate_julia(julia, real_part, imaginary_part, task.max_iteration)
-            },
+            }
             FractalDescriptor::Mandelbrot(..) => {
                 iterate_mandelbrot(real_part, imaginary_part, task.max_iteration)
-            },
+            }
         }
     }
 
@@ -176,17 +187,33 @@ pub mod networking {
         (x, y)
     }
 
-    fn get_complex_from_coordinates(range: &Range, x: u32, y: u32, resolution: &Resolution) -> (f64, f64) {
-        let real_part = range.min.x + (range.max.x - range.min.x) * (x as f64) / (resolution.nx as f64 - 1.0);
-        let imaginary_part = range.min.y + (range.max.y - range.min.y) * (y as f64) / (resolution.ny as f64 - 1.0);
+    fn get_complex_from_coordinates(
+        range: &Range,
+        x: u32,
+        y: u32,
+        resolution: &Resolution,
+    ) -> (f64, f64) {
+        let real_part =
+            range.min.x + (range.max.x - range.min.x) * (x as f64) / (resolution.nx as f64 - 1.0);
+        let imaginary_part =
+            range.min.y + (range.max.y - range.min.y) * (y as f64) / (resolution.ny as f64 - 1.0);
         (real_part, imaginary_part)
     }
 
-    fn iterate_julia(julia: &Julia, real_part: f64, imaginary_part: f64, max_iteration: u32) -> PixelIntensity {
-        let mut z = Complex { re: real_part, im: imaginary_part };
+    fn iterate_julia(
+        julia: &Julia,
+        real_part: f64,
+        imaginary_part: f64,
+        max_iteration: u32,
+    ) -> PixelIntensity {
+        let mut z = Complex {
+            re: real_part,
+            im: imaginary_part,
+        };
         let mut iter = 0;
 
-        while z.re * z.re + z.im * z.im <= julia.divergence_threshold_square && iter < max_iteration {
+        while z.re * z.re + z.im * z.im <= julia.divergence_threshold_square && iter < max_iteration
+        {
             z = z * z + julia.c;
             iter += 1;
         }
@@ -203,8 +230,15 @@ pub mod networking {
         }
     }
 
-    fn iterate_mandelbrot(real_part: f64, imaginary_part: f64, max_iteration: u32) -> PixelIntensity {
-        let c = Complex { re: real_part, im: imaginary_part };
+    fn iterate_mandelbrot(
+        real_part: f64,
+        imaginary_part: f64,
+        max_iteration: u32,
+    ) -> PixelIntensity {
+        let c = Complex {
+            re: real_part,
+            im: imaginary_part,
+        };
         let mut z = Complex { re: 0.0, im: 0.0 };
         let mut iter = 0;
 
@@ -244,8 +278,7 @@ pub mod fractal {
     }
 
     #[derive(Debug, Serialize, Deserialize)]
-    pub struct Mandelbrot {
-    }
+    pub struct Mandelbrot {}
 }
 
 pub mod image {
