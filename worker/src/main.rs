@@ -14,7 +14,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let arguments: Vec<String> = args().collect();
     let server_address = validate_worker_argument(arguments)?;
 
-    println!("\nConnecting to server on address {}...", server_address);
+    println!("\n Connecting to server on address {}...", server_address);
     let mut stream = TcpStream::connect(server_address)?;
     println!("Connected to server on address {}", server_address);
     let mut buffer: Vec<u8> = Vec::new();
