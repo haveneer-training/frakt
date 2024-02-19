@@ -167,6 +167,11 @@ pub mod networking {
         }
     }
 
+    pub fn get_pixel_julia(task: &Task, pixel_number: u32) -> PixelIntensity {
+        let Julia { c, divergence_threshold_square } = match task.fractal {
+            FractalDescriptor::Julia(ref julia) => julia,
+        };
+
     fn get_coordinates_from_pixel_number(pixel_number: u32, resolution: &Resolution) -> (u32, u32) {
         let x = pixel_number % resolution.nx as u32;
         let y = pixel_number / resolution.nx as u32;
