@@ -204,7 +204,7 @@ pub mod networking {
         mut z: Complex,
         c: Complex,
         divergence_threshold_square: f64,
-        max_iteration: u32
+        max_iteration: u32,
     ) -> PixelIntensity {
         let mut iter = 0;
 
@@ -225,15 +225,30 @@ pub mod networking {
         }
     }
 
-    fn iterate_julia(julia: &Julia, real_part: f64, imaginary_part: f64, max_iteration: u32) -> PixelIntensity {
-        let z = Complex { re: real_part, im: imaginary_part };
+    fn iterate_julia(
+        julia: &Julia,
+        real_part: f64,
+        imaginary_part: f64,
+        max_iteration: u32,
+    ) -> PixelIntensity {
+        let z = Complex {
+            re: real_part,
+            im: imaginary_part,
+        };
         let c = julia.c;
         iterate_fractal(z, c, julia.divergence_threshold_square, max_iteration)
     }
 
-    fn iterate_mandelbrot(real_part: f64, imaginary_part: f64, max_iteration: u32) -> PixelIntensity {
+    fn iterate_mandelbrot(
+        real_part: f64,
+        imaginary_part: f64,
+        max_iteration: u32,
+    ) -> PixelIntensity {
         let z = Complex { re: 0.0, im: 0.0 };
-        let c = Complex { re: real_part, im: imaginary_part };
+        let c = Complex {
+            re: real_part,
+            im: imaginary_part,
+        };
         iterate_fractal(z, c, 4.0, max_iteration)
     }
 }
