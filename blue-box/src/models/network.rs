@@ -1,6 +1,6 @@
 use std::{net::{TcpStream, Shutdown}, io::{self, Write, Read}};
 
-use log::{debug, warn};
+use log::{debug, warn, error};
 
 use crate::{types::protocols::Fragment, utils::json};
 
@@ -82,7 +82,10 @@ impl Network  {
         };
 
         let mut data = vec![0_u8; data_message_size as usize];
-        stream.read(&mut data)?;
+        if let Err(e) = stream.read_exact(&mut data){
+            error!("Failed to read binary data: {}", e);
+            return Err(e.into());
+        }
 
         Ok((fragment, data))
     }

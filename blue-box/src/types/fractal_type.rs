@@ -35,10 +35,10 @@ pub trait CalcFractal {
                 error!("Can't add to data")
             }
 
-            let mut color: Rgb<u8> = Rgb{0: color_palette(count)};
-            pixel[0] = color[0];
-            pixel[1] = color[1];
-            pixel[2] = color[2];
+            // let (red, green, blue) = Rgb{0: color_palette(count) as [u8; 3]};
+            // pixel[0] = red;
+            // pixel[1] = green;
+            // pixel[2] = blue;
         }
 
 
