@@ -9,6 +9,7 @@
 
 mod complex_test;
 
+use std::f64::consts::PI;
 use std::ops;
 
 use serde::{Deserialize, Serialize};
@@ -29,11 +30,29 @@ impl Complex {
         (self.re.powi(2) + self.im.powi(2)).sqrt()
     }
 
+    pub fn angle(&self) -> f64 {
+        (self.im.atan2(self.re) / (2.0 * PI)).rem_euclid(1.0)
+
+    }
+
+    pub fn norm_square(&self) -> f64 {
+        self.re * self.re + self.im * self.im
+    }
+
     /// It is possible to obtain the sine of a complex number, which returns a new complex number
     pub fn sin(&self)-> Complex{
         Complex{
             re:(self.re.sin() * self.im.cosh()),
             im:(self.re.cos() * self.im.sinh())
+        }
+    }
+
+    pub fn convergence_value(pzn: f32, threshold: f64, count: u32, nmax: u32) -> f32 {
+        let accuracy = f32::log10(threshold as f32);
+        if count < nmax {
+            0.5 - 0.5 * f32::cos(0.1 * (count as f32 - (f32::log10(pzn) / accuracy)))
+        } else {
+            1.
         }
     }
 
@@ -75,19 +94,15 @@ impl std::ops::Div for Complex {
     type Output = Self;
 
     fn div(self, rhs: Self) -> Self {
-
-        let numerator_re = self.re * rhs.re + self.im * rhs.im;
-        let numerator_im = rhs.im * self.re - rhs.re * self.im;
-
-        let denominator = rhs.re * rhs.re + rhs.im * rhs.im;
-
-        Complex {
-
-            re: numerator_re / denominator,
-
-            im: numerator_im / denominator,
+        let denom = rhs.re * rhs.re + rhs.im * rhs.im;
+        Self {
+            re: (self.re * rhs.re + self.im * rhs.im) / denom,
+            im: (self.im * rhs.re - self.re * rhs.im) / denom,
         }
     }
 }
+
+
+
 
 
