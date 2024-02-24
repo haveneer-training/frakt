@@ -33,9 +33,9 @@ fn cal_norm() {
     let _1_7i = Complex::new(1_f64, 7_f64);
     let __11_23i = Complex::new(-11_f64, 23_f64);
 
-    assert_eq!(3.605551275463989, _3_2i.norm());
-    assert_eq!(7.0710678118654755, _1_7i.norm());
-    assert_eq!(25.495097567963924, __11_23i.norm());
+    assert_eq!(13.0, _3_2i.norm());
+    assert_eq!(50.0, _1_7i.norm());
+    assert_eq!(650.0, __11_23i.norm());
 
 }
 

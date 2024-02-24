@@ -27,7 +27,7 @@ impl Complex {
 
     /// It is possible to calculate the norm of a complex number
     pub fn norm(&self) -> f64 {
-        (self.re.powi(2) + self.im.powi(2)).sqrt()
+        self.re.powi(2) + self.im.powi(2)
     }
 
     pub fn angle(&self) -> f64 {

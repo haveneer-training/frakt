@@ -63,9 +63,9 @@ fn main(){
         }
     };
 
-    while true{
+    loop {
         let fragment_result = Fractal::run(&fragment_task, &mut data);
-        
+
         fragment_task = match client.send_work_done(fragment_result, &mut data){
             Ok(fragment) => {
                 fragment

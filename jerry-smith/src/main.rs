@@ -1,10 +1,11 @@
 mod models;
 mod utils;
 
-use std::{process, net::TcpStream, io};
+use std::{process, thread, sync::mpsc::{self, Sender, Receiver} };
 
-use log::{error, info, warn};
-use models::server::Server;
+use blue_box::types::desc::PixelIntensity;
+use log::{error, warn};
+use models::{server::Server, display::DisplayFractal};
 use utils::config::Config;
 
 fn main() {
@@ -12,7 +13,11 @@ fn main() {
 
     let config = Config::read();
 
-    let server = Server::new(config.server_address, config.port);
+    let (tx, rx): (Sender<Vec<PixelIntensity>>, Receiver<Vec<PixelIntensity>>) = mpsc::channel();
+
+    let display_fractal = DisplayFractal::new(config.width, config.height);
+
+    let server = Server::new(config.server_address, config.port, config.width, config.height);
     let listener_result = server.start_server();
 
     let listener = match listener_result {
@@ -23,36 +28,19 @@ fn main() {
         }
     };
 
-    for stream in listener.incoming() {
-        match stream {
-            Ok(mut s) => match handle_client(&mut s) {
-                Ok(_) => {}
-                Err(err) => warn!("Data received from the client has a probleme! {}", err),
-            },
-            Err(err) => {
-                warn!("Something went wrong with a stream ! {}", err)
+    let _communication_thread = thread::spawn(move || {
+        for stream in listener.incoming() {
+            match stream {
+                Ok(mut s) => match Server::handle_client(&mut s, &tx) {
+                    Ok(_) => {}
+                    Err(err) => warn!("Data received from the client has a probleme! {}", err),
+                },
+                Err(err) => {
+                    warn!("Something went wrong with a stream ! {}", err)
+                }
             }
         }
-    }
-}
+    });
 
-fn handle_client(stream: &mut TcpStream) -> Result<(), io::Error> {
-    info!("Incoming connection {stream:?}");
-
-    let _fragment_request = Server::get_work_request(stream)?;
-
-    Server::send_work(stream)?;
-
-    let fragment_result_result = Server::get_work_done(stream);
-
-    // let data: Vec<u8>;
-    // let fragment_result = match fragment_result_result {
-    //     Ok((fragment, data_in)) => {
-    //         data = data_in;
-    //         fragment
-    //     },
-    //     Err(err) => return Err(err),
-    // };
-
-    Ok(())
+    display_fractal.start(rx);
 }
