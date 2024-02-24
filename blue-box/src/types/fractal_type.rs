@@ -1,15 +1,18 @@
+use std::cmp::max;
 use std::io::Write;
+use std::ops::{Div, Sub};
 
 use cmplx_nbr::Complex;
 use image::{ImageBuffer, Rgb};
 use log::error;
 use serde::{Deserialize, Serialize};
-
 use crate::utils::colors::color_palette;
 
 use super::{protocols::FragmentTask, desc::Range};
 
 pub trait CalcFractal {
+
+
     fn determine_pixel_intensity(&self, x: f64, y: f64, max_iteration: &u32)-> (f32, f32);
 
     fn make_image(&self, fragment_task: &FragmentTask, data: &mut Vec<u8>) {
@@ -119,3 +122,50 @@ impl CalcFractal for IteratedSinZ{
     }
 
 }
+impl NewtonRaphsonZ3{
+    pub fn new()->Self {
+        Self {}
+    }
+    fn fz(&self, z:Complex)-> Complex{
+        z*z*z-Complex::new(1.0,0.0)
+    }
+    fn dfz(&self, z:Complex)-> Complex{
+        Complex::new(3.0,0.0) * z * z
+    }
+}
+
+
+impl CalcFractal for NewtonRaphsonZ3 {
+
+    fn determine_pixel_intensity(&self, x: f64, y: f64, max_iteration: &u32) -> (f32, f32) {
+        let mut z = Complex::new(x, y);
+        let mut zn_next;
+        let delta = 1e-6;
+        let mut i = 0;
+
+        loop {
+            zn_next = z - (self.fz(z) / self.dfz(z));
+            if (zn_next - z).norm_square() < delta || i >= *max_iteration {
+                break;
+            }
+            z = zn_next;
+            i += 1;
+        }
+
+        let zn = z.angle();
+        let count = if i < *max_iteration {
+            Complex::convergence_value(z.norm_square() as f32, delta, i, *max_iteration)
+        } else {
+            1.0
+        };
+
+        return (zn as f32, i as f32 * count / *max_iteration as f32);
+    }
+}
+
+
+
+
+
+
+
