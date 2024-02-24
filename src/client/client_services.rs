@@ -13,13 +13,13 @@ pub struct ClientServices {
 }
 
 impl ClientServices {
-    pub fn connect_to(host: &str, port: u16) -> TcpStream {
+    pub fn connect_to(host: &str, port: &u16) -> TcpStream {
         let server_addr: String = format!("{}:{}", host, port);
         TcpStream::connect(server_addr).expect("Could not connect to server")
     }
 
-    pub fn new(host: String, port: u16) -> ClientServices {
-        let stream = ClientServices::connect_to(&host, port);
+    pub fn new(host: &String, port: &u16) -> ClientServices {
+        let stream = ClientServices::connect_to(&host, &port);
         ClientServices { stream }
     }
 
@@ -67,12 +67,7 @@ impl ClientServices {
         (task, data_buffer)
     }
 
-    pub fn send_result(
-        &mut self,
-        result: FragmentResult,
-        pixels_intensity: Vec<PixelIntensity>,
-        id: Vec<u8>,
-    ) {
+    pub fn send_result(&mut self, result: FragmentResult, datas: Vec<PixelIntensity>, id: Vec<u8>) {
         let serialized = result.serialize();
         let json_bytes = serialized.as_bytes();
         let msg_len: u32 = json_bytes.len() as u32;
@@ -81,8 +76,8 @@ impl ClientServices {
         let total_msg_len: u32 = msg_len + (result.pixels.offset + result.pixels.count * (4 + 4));
         println!(
             "{:?} {:?}",
-            &pixels_intensity[0].zn.to_be_bytes(),
-            &pixels_intensity[0].count.to_be_bytes()
+            &datas[0].zn.to_be_bytes(),
+            &datas[0].count.to_be_bytes()
         );
         //send Total message size
         let a = total_msg_len.to_be_bytes();
@@ -104,7 +99,7 @@ impl ClientServices {
             .expect("Could not write to stream");
 
         //send zn and count for each pixels
-        for pixel in pixels_intensity {
+        for pixel in datas {
             let zn = pixel.zn;
             let count = pixel.count;
             self.stream

@@ -7,91 +7,73 @@ mod client_calcul {
     pub mod libs;
 }
 
-use crate::fractal::fractal::FractalDescriptor;
-use crate::fractal::fractal_types::{newton_raphson_z_3, nova_newton_raphson_z_3};
-use crate::{
-    client::client_services::ClientServices, fractal::fractal::GetDatas,
-    messages::fragment_result::FragmentResult,
-};
-use client_calcul::libs::fractal_lib;
+use std::env;
 
+use crate::client_calcul::libs::fractal_lib;
+use crate::fractal::fractal::FractalDescriptor;
+use crate::{client::client_services::ClientServices, messages::fragment_result::FragmentResult};
 fn main() {
-    let mut client = ClientServices::new(String::from("localhost"), 8787);
+    let mut host = String::from("localhost");
+    let mut port = 8787;
+
+    let args: Vec<String> = env::args().collect();
+
+    // Récupérer le nom de l'exécutable
+    let elements: Vec<&str> = args[0].split('/').collect();
+    let exec = elements.last().unwrap();
+
+    match args.len() {
+        1 => {
+            // Utiliser les valeurs par défaut de host et port
+        }
+        2 => {
+            // Changer pour "--help" quand possible de lancer en exécutable
+            if args[1] == "help" {
+                println!("Usage : ./{} <name> <port>", exec);
+                // Terminer le programme
+                std::process::exit(0);
+            }
+        }
+        3 => {
+            // Récupérer les arguments valides
+            host = args[1].clone();
+            port = args[2].clone().parse().unwrap();
+        }
+        _ => {
+            // Nombres d'arguments incorrects
+            eprintln!("Erreur : Nombre incorrect d'arguments !");
+            eprintln!("Usage : ./{} <name> <port>", exec);
+            // Terminer le programme avec un code d'erreur
+            std::process::exit(1);
+        }
+    }
+
+    let mut client = ClientServices::new(&host, &port);
     let request = messages::fragment_request::FragmentRequest::new(String::from("worker"), 10);
     let (task, id) = client.request_task(request);
     println!("{}", task.serialize());
-    //TODO: calculer la fractale
 
     let _result = FragmentResult::create(&task);
-
     println!("{}", _result.serialize());
 
-    let pixel_intensity_vec = match &task.fractal {
-        FractalDescriptor::Julia(julia) => julia.get_datas(&task),
-        FractalDescriptor::Mandelbrot(mandelbrot) => mandelbrot.get_datas(&task),
-        FractalDescriptor::IteratedSinZ(iteratedSinZ) => iteratedSinZ.get_datas(&task),
-        FractalDescriptor::NewtonRaphsonZ3(newton_raphson_z_3) => {
-            newton_raphson_z_3.get_datas(&task)
-        }
-        FractalDescriptor::NewtonRaphsonZ4(newton_raphson_z_4) => {
-            newton_raphson_z_4.get_datas(&task)
-        }
-        FractalDescriptor::NovaNewtonRaphsonZ3(nova_newton_raphson_z_3) => {
-            nova_newton_raphson_z_3.get_datas(&task)
-        }
-        FractalDescriptor::NovaNewtonRaphsonZ4(nova_newton_raphson_z_4) => {
-            nova_newton_raphson_z_4.get_datas(&task)
-        }
-    };
-
-    //fractal_lib::create_image(&task, &pixel_intensity_vec);
-
-    // println!(
-    //     "nombre de PixelIntensity calculated: {}",
-    //     pixel_intensity_vec.len()
-    // );
+    let datas = FractalDescriptor::get_datas(&task);
+    //fractal_lib::create_image(&task, &datas);
 
     //make loop here so when a FragmentResult is sent, the worker takes another task
-    client = ClientServices::new(String::from("localhost"), 8787);
-    client.send_result(_result, pixel_intensity_vec, id);
+    client = ClientServices::new(&host, &port);
+    client.send_result(_result, datas, id);
 
-    while true {
+    loop {
         let (task, id) = client.read_task_response();
         println!("{}", task.serialize());
 
         let _result = FragmentResult::create(&task);
-
         println!("{}", _result.serialize());
 
-        let pixel_intensity_vec = match &task.fractal {
-            FractalDescriptor::Julia(julia) => julia.get_datas(&task),
-            FractalDescriptor::Mandelbrot(mandelbrot) => mandelbrot.get_datas(&task),
-            FractalDescriptor::IteratedSinZ(iteratedSinZ) => iteratedSinZ.get_datas(&task),
-            FractalDescriptor::NewtonRaphsonZ3(newton_raphson_z_3) => {
-                newton_raphson_z_3.get_datas(&task)
-            }
-            FractalDescriptor::NewtonRaphsonZ4(newton_raphson_z_4) => {
-                newton_raphson_z_4.get_datas(&task)
-            }
-            FractalDescriptor::NovaNewtonRaphsonZ3(nova_newton_raphson_z_3) => {
-                nova_newton_raphson_z_3.get_datas(&task)
-            }
-            FractalDescriptor::NovaNewtonRaphsonZ4(nova_newton_raphson_z_4) => {
-                nova_newton_raphson_z_4.get_datas(&task)
-            }
-        };
-        // println!("pixel_intensity_vec size: {}", pixel_intensity_vec.len());
-        // fractal_lib::create_image(&task, &pixel_intensity_vec);
+        let datas = FractalDescriptor::get_datas(&task);
+        // fractal_lib::create_image(&task, &datas);
 
-        // println!("{:?}", &pixel_intensity_vec);
-
-        // println!(
-        //     "nombre de PixelIntensity calculated: {}",
-        //     pixel_intensity_vec.len()
-        // );
-
-        //make loop here so when a FragmentResult is sent, the worker takes another task
-        client = ClientServices::new(String::from("localhost"), 8787);
-        client.send_result(_result, pixel_intensity_vec, id);
+        client = ClientServices::new(&host, &port);
+        client.send_result(_result, datas, id);
     }
 }

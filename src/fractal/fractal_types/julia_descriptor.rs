@@ -1,3 +1,5 @@
+use std::fmt::{Display, Error, Formatter};
+
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -25,7 +27,7 @@ impl GetDatas for JuliaDescriptor {
         let x_step = ((&x_start - &x_end) / task.resolution.nx as f64).abs();
         let y_step = ((&y_start - &y_end) / task.resolution.ny as f64).abs();
 
-        let mut pixel_intensity_vec: Vec<PixelIntensity> = Vec::new();
+        let mut datas: Vec<PixelIntensity> = Vec::new();
 
         let max_iteration = task.max_iteration;
         let mut x = x_start;
@@ -40,13 +42,19 @@ impl GetDatas for JuliaDescriptor {
                     self.divergence_threshold_square,
                     max_iteration,
                 );
-                pixel_intensity_vec.push(PixelIntensity::new(fractal_result.0, fractal_result.1));
+                datas.push(PixelIntensity::new(fractal_result.0, fractal_result.1));
                 x += x_step;
             }
             x = x_start;
             y += y_step;
         }
 
-        return pixel_intensity_vec;
+        return datas;
+    }
+}
+
+impl Display for JuliaDescriptor {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(f, "Julia")
     }
 }
