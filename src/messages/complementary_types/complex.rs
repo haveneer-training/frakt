@@ -1,3 +1,5 @@
+use std::ops::{Add, Div, Mul, Sub};
+
 use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Clone, Copy, Debug)]
 pub struct Complex {
@@ -5,7 +7,7 @@ pub struct Complex {
     pub im: f64,
 }
 
-impl std::ops::Add for Complex {
+impl Add for Complex {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self {
@@ -16,7 +18,18 @@ impl std::ops::Add for Complex {
     }
 }
 
-impl std::ops::Sub for Complex {
+impl Add<f64> for Complex {
+    type Output = Self;
+
+    fn add(self, num: f64) -> Self {
+        Complex {
+            re: self.re + num,
+            im: self.im,
+        }
+    }
+}
+
+impl Sub for Complex {
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self {
@@ -27,7 +40,18 @@ impl std::ops::Sub for Complex {
     }
 }
 
-impl std::ops::Mul for Complex {
+impl Sub<f64> for Complex {
+    type Output = Self;
+
+    fn sub(self, num: f64) -> Self {
+        Complex {
+            re: self.re - num,
+            im: self.im,
+        }
+    }
+}
+
+impl Mul for Complex {
     type Output = Self;
 
     fn mul(self, rhs: Self) -> Self {
@@ -38,13 +62,35 @@ impl std::ops::Mul for Complex {
     }
 }
 
-impl std::ops::Div for Complex {
+impl Mul<f64> for Complex {
+    type Output = Self;
+
+    fn mul(self, num: f64) -> Self {
+        Complex {
+            re: self.re * num,
+            im: self.im * num,
+        }
+    }
+}
+
+impl Div for Complex {
     type Output = Self;
 
     fn div(self, rhs: Self) -> Self {
         Complex {
             re: (self.re * rhs.re + self.im * rhs.im) / (rhs.re * rhs.re + rhs.im * rhs.im),
             im: (self.im * rhs.re - self.re * rhs.im) / (rhs.re * rhs.re + rhs.im * rhs.im),
+        }
+    }
+}
+
+impl Div<f64> for Complex {
+    type Output = Self;
+
+    fn div(self, num: f64) -> Self {
+        Complex {
+            re: self.re / num,
+            im: self.im / num,
         }
     }
 }
@@ -77,5 +123,13 @@ impl Complex {
 
     pub fn arg(self) -> f64 {
         self.im.atan2(self.re)
+    }
+
+    pub fn pow(self, num: u32) -> Self {
+        let mut result = self;
+        for _ in 1..num {
+            result = result * self;
+        }
+        result
     }
 }

@@ -1,4 +1,6 @@
 pub mod fractal_lib {
+    use std::f64::consts::PI;
+
     use crate::messages::{
         complementary_types::{complex::Complex, pixelintensity::PixelIntensity},
         fragment_task::FragmentTask,
@@ -9,7 +11,7 @@ pub mod fractal_lib {
         let mut count = 0;
 
         while count < max_iter && zn.arg_sq() < max_divergence {
-            zn = zn * zn + c;
+            zn = zn.pow(2) + c;
             count += 1;
         }
         (
@@ -24,7 +26,7 @@ pub mod fractal_lib {
         let mut count = 0;
 
         while zn.arg_sq() < 4 as f64 && count < max_iter {
-            zn = zn * zn + c;
+            zn = zn.pow(2) + c;
             count += 1;
         }
         (
@@ -33,7 +35,7 @@ pub mod fractal_lib {
         )
     }
 
-    pub fn iteratedSinZ(z: Complex, c: Complex, max_iter: u16) -> (f32, f32) {
+    pub fn iterated_sin_z(z: Complex, c: Complex, max_iter: u16) -> (f32, f32) {
         let mut zn = z;
         let mut count = 0;
 
@@ -51,15 +53,15 @@ pub mod fractal_lib {
         let mut zn = z;
         let mut previous_zn = Complex::new(0.0, 0.0);
         let mut count = 0;
-        // println!("zn+1: {}, zn: {}, zn+1 - zn abs au carré: {}");
+
         while (zn - previous_zn).arg_sq() > 10.0_f64.powi(-6) && count < max_iter {
             previous_zn = zn;
-            zn = zn - (zn * zn * zn - Complex::new(1.0, 0.0)) / (Complex::new(3.0, 0.0) * zn * zn);
+            zn = zn - (zn.pow(3) - 1.0) / (zn.pow(2) * 3.0);
             count += 1;
         }
 
         (
-            0.5 + zn.arg() as f32 / (2.0 * std::f64::consts::PI) as f32,
+            0.5 + zn.arg() as f32 / (2.0 * PI) as f32,
             count as f32 / max_iter as f32,
         )
     }
@@ -68,17 +70,15 @@ pub mod fractal_lib {
         let mut zn = z;
         let mut previous_zn = Complex::new(0.0, 0.0);
         let mut count = 0;
-        // println!("zn+1: {}, zn: {}, zn+1 - zn abs au carré: {}");
+
         while (zn - previous_zn).arg_sq() > 10.0_f64.powi(-6) && count < max_iter {
             previous_zn = zn;
-            zn = zn
-                - (zn * zn * zn * zn - Complex::new(1.0, 0.0))
-                    / (Complex::new(4.0, 0.0) * zn * zn * zn);
+            zn = zn - (zn.pow(4) - 1.0) / (zn.pow(3) * 4.0);
             count += 1;
         }
 
         (
-            0.5 + zn.arg() as f32 / (2.0 * std::f64::consts::PI) as f32,
+            0.5 + zn.arg() as f32 / (2.0 * PI) as f32,
             count as f32 / max_iter as f32,
         )
     }
@@ -88,11 +88,10 @@ pub mod fractal_lib {
         let c = pixel_complexe;
         let mut previous_zn = Complex::new(0.0, 0.0);
         let mut count = 0;
-        // println!("zn+1: {}, zn: {}, zn+1 - zn abs au carré: {}");
+
         while (zn - previous_zn).arg_sq() > 10.0_f64.powi(-6) && count < max_iter {
             previous_zn = zn;
-            zn = c + zn
-                - (zn * zn * zn - Complex::new(1.0, 0.0)) / (Complex::new(3.0, 0.0) * zn * zn);
+            zn = c + zn - (zn.pow(3) - 1.0) / (zn.pow(2) * 3.0);
             count += 1;
         }
 
@@ -104,12 +103,10 @@ pub mod fractal_lib {
         let c = pixel_complexe;
         let mut previous_zn = Complex::new(0.0, 0.0);
         let mut count = 0;
-        // println!("zn+1: {}, zn: {}, zn+1 - zn abs au carré: {}");
+
         while (zn - previous_zn).arg_sq() > 10.0_f64.powi(-6) && count < max_iter {
             previous_zn = zn;
-            zn = c + zn
-                - (zn * zn * zn * zn - Complex::new(1.0, 0.0))
-                    / (Complex::new(4.0, 0.0) * zn * zn * zn);
+            zn = c + zn - (zn.pow(4) - 1.0) / (zn.pow(3) * 4.0);
             count += 1;
         }
 
@@ -134,12 +131,13 @@ pub mod fractal_lib {
         let mut image_buffer = image::ImageBuffer::new(image_width, image_height);
 
         let mut count = 0;
-        for (x, y, pixel) in image_buffer.enumerate_pixels_mut() {
+        for (_x, _y, pixel) in image_buffer.enumerate_pixels_mut() {
             let t = pixel_intensity_vec[count].zn as f64;
+
             *pixel = image::Rgb(color((2.0 * t + 0.5) % 1.0));
             count += 1;
         }
 
-        image_buffer.save("Julia.png").unwrap();
+        image_buffer.save(format!("{}.png", task.fractal)).unwrap();
     }
 }
