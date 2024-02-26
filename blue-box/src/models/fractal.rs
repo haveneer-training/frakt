@@ -34,7 +34,7 @@ impl Fractal {
             FractalDescriptor::Mandelbrot(mandelbrot) => mandelbrot.make_image(&fragment_task, data),
             FractalDescriptor::IteratedSinZ(iter) => iter.make_image(&fragment_task, data),
             FractalDescriptor::NewtonRaphsonZ3(_newton) =>_newton.make_image(&fragment_task, data),
-            FractalDescriptor::NewtonRaphsonZ4(_newton) => todo!(),
+            FractalDescriptor::NewtonRaphsonZ4(_newton) => _newton.make_image(&fragment_task,data),
         };
 
         fragment_result

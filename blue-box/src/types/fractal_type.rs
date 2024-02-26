@@ -164,7 +164,46 @@ impl CalcFractal for NewtonRaphsonZ3 {
 }
 
 
+impl NewtonRaphsonZ4{
+    pub fn new()->Self {
+        Self {}
+    }
+    fn fz(&self, z:Complex)-> Complex{
+        z*z*z*z-Complex::new(4.0,0.0)
+    }
+    fn dfz(&self, z:Complex)-> Complex{
+        Complex::new(4.0,0.0) * z * z * z
+    }
+}
 
+
+impl CalcFractal for NewtonRaphsonZ4 {
+
+    fn determine_pixel_intensity(&self, x: f64, y: f64, max_iteration: &u32) -> (f32, f32) {
+        let mut z = Complex::new(x, y);
+        let mut zn_next;
+        let alpha = 1e-6;
+        let mut i = 0;
+
+        loop {
+            zn_next = z - (self.fz(z) / self.dfz(z));
+            if (zn_next - z).norm_square() < alpha || i >= *max_iteration {
+                break;
+            }
+            z = zn_next;
+            i += 1;
+        }
+
+        let zn = z.angle();
+        let count = if i < *max_iteration {
+            Complex::convergence_value(z.norm_square() as f32, alpha, i, *max_iteration)
+        } else {
+            1.0
+        };
+
+        return (zn as f32, i as f32 * count / *max_iteration as f32);
+    }
+}
 
 
 
