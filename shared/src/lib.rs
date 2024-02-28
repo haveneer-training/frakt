@@ -179,9 +179,12 @@ pub mod networking {
             FractalDescriptor::Mandelbrot(..) => {
                 iterate_mandelbrot(real_part, imaginary_part, task.max_iteration)
             }
-            FractalDescriptor::IteratedSinZ(ref iterated_sin_z) => {
-                iterate_iterated_sin_z(iterated_sin_z, real_part, imaginary_part, task.max_iteration)
-            }
+            FractalDescriptor::IteratedSinZ(ref iterated_sin_z) => iterate_iterated_sin_z(
+                iterated_sin_z,
+                real_part,
+                imaginary_part,
+                task.max_iteration,
+            ),
         }
     }
 
