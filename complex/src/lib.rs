@@ -17,6 +17,22 @@ impl Complex {
     pub fn norm_sqr(&self) -> f64 {
         self.re.powi(2) + self.im.powi(2)
     }
+
+    /// Calculates the sine of the complex number
+    pub fn sin(&self) -> Self {
+        Complex {
+            re: self.re.sin() * self.im.cosh(),
+            im: self.re.cos() * self.im.sinh(),
+        }
+    }
+
+    /// Calculates the cosine of the complex number
+    pub fn cos(&self) -> Self {
+        Complex {
+            re: self.re.cos() * self.im.cosh(),
+            im: -self.re.sin() * self.im.sinh(),
+        }
+    }
 }
 
 impl Add for Complex {
@@ -34,7 +50,7 @@ impl Add for Complex {
 impl Mul for Complex {
     type Output = Self;
 
-    /// Multiplies two complex numbers.
+    /// Multiplies two complex numbers
     fn mul(self, other: Self) -> Self::Output {
         Complex {
             re: self.re * other.re - self.im * other.im,
