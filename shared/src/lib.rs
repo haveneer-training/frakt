@@ -181,7 +181,10 @@ pub mod networking {
         }
     }
 
-    pub fn get_coordinates_from_pixel_number(pixel_number: u32, resolution: &Resolution) -> (u32, u32) {
+    pub fn get_coordinates_from_pixel_number(
+        pixel_number: u32,
+        resolution: &Resolution,
+    ) -> (u32, u32) {
         let x = pixel_number % resolution.nx as u32;
         let y = pixel_number / resolution.nx as u32;
         (x, y)
@@ -308,51 +311,95 @@ pub mod image {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use complex::Complex;
 
-    use crate::image::Resolution;
-    use crate::image::Range;
     use super::*;
+    use crate::image::Range;
+    use crate::image::Resolution;
 
     #[test]
-fn test_coordinate_transformation() {
-    use crate::image::Point;
+    fn test_coordinate_transformation() {
+        use crate::image::Point;
 
-    let resolution = Resolution { nx: 800, ny: 600 };
-    let range = Range {
-        min: Point { x: -2.0, y: -1.5 },
-        max: Point { x: 1.0, y: 1.5 },
-    };
-    let pixel_number = 300 * 800 + 400; // For example, pixel (400, 300)
-    let (x, y) = networking::get_coordinates_from_pixel_number(pixel_number, &resolution);
-    assert_eq!((x, y), (400, 300));
+        let resolution = Resolution { nx: 800, ny: 600 };
+        let range = Range {
+            min: Point { x: -2.0, y: -1.5 },
+            max: Point { x: 1.0, y: 1.5 },
+        };
+        let pixel_number = 300 * 800 + 400; // For example, pixel (400, 300)
+        let (x, y) = networking::get_coordinates_from_pixel_number(pixel_number, &resolution);
+        assert_eq!((x, y), (400, 300));
 
-    let (_real, _image) = networking::get_complex_from_coordinates(&range, x, y, &resolution);
-    // Assert that the complex number is correctly calculated.
-    // The exact values will depend on your implementation of get_complex_from_coordinates
-}
-#[test]
-fn test_fractal_intensity() {
-    let julia_fractal = fractal::Julia {
-        c: Complex { re: -0.4, im: 0.6 },
-        divergence_threshold_square: 4.0,
-    };
-    
-    let mandelbrot_fractal = fractal::Mandelbrot { /* Fields */ };
+        let (_real, _image) = networking::get_complex_from_coordinates(&range, x, y, &resolution);
+        // Assert that the complex number is correctly calculated.
+        // The exact values will depend on your implementation of get_complex_from_coordinates
+    }
+    #[test]
+    fn test_fractal_intensity() {
+        let julia_fractal = fractal::Julia {
+            c: Complex { re: -0.4, im: 0.6 },
+            divergence_threshold_square: 4.0,
+        };
 
-    // Test Julia set at a specific point
-    let intensity_julia = networking::iterate_julia(&julia_fractal, 0.0, 0.0, 100);
-    assert!(intensity_julia.count > 0.0); // Adjust assertion based on expected behavior
+        let mandelbrot_fractal = fractal::Mandelbrot { /* Fields */ };
 
-    // Similarly, test Mandelbrot set at a specific point
-    let intensity_mandelbrot = networking::iterate_mandelbrot(0.0, 0.0, 100);
-    assert!(intensity_mandelbrot.count > 0.0); // Adjust assertion based on expected behavior
-}
+        // Test Julia set at a specific point
+        let intensity_julia = networking::iterate_julia(&julia_fractal, 0.0, 0.0, 100);
+        assert!(intensity_julia.count > 0.0); // Adjust assertion based on expected behavior
+
+        // Similarly, test Mandelbrot set at a specific point
+        let intensity_mandelbrot = networking::iterate_mandelbrot(0.0, 0.0, 100);
+        assert!(intensity_mandelbrot.count > 0.0); // Adjust assertion based on expected behavior
+    }
 
     // Your tests will go here
-    
-}
 
+    #[cfg(test)]
+    mod tests {
+        use complex::Complex;
+
+        use super::*;
+        use crate::image::Range;
+        use crate::image::Resolution;
+
+        #[test]
+        fn test_coordinate_transformation() {
+            use crate::image::Point;
+
+            let resolution = Resolution { nx: 800, ny: 600 };
+            let range = Range {
+                min: Point { x: -2.0, y: -1.5 },
+                max: Point { x: 1.0, y: 1.5 },
+            };
+            let pixel_number = 300 * 800 + 400; // For example, pixel (400, 300)
+            let (x, y) = networking::get_coordinates_from_pixel_number(pixel_number, &resolution);
+            assert_eq!((x, y), (400, 300));
+
+            let (_real, _image) =
+                networking::get_complex_from_coordinates(&range, x, y, &resolution);
+            // Assert that the complex number is correctly calculated.
+            // The exact values will depend on your implementation of get_complex_from_coordinates
+        }
+        #[test]
+        fn test_fractal_intensity() {
+            let julia_fractal = fractal::Julia {
+                c: Complex { re: -0.4, im: 0.6 },
+                divergence_threshold_square: 4.0,
+            };
+
+            let mandelbrot_fractal = fractal::Mandelbrot { /* Fields */ };
+
+            // Test Julia set at a specific point
+            let intensity_julia = networking::iterate_julia(&julia_fractal, 0.0, 0.0, 100);
+            assert!(intensity_julia.count > 0.0); // Adjust assertion based on expected behavior
+
+            // Similarly, test Mandelbrot set at a specific point
+            let intensity_mandelbrot = networking::iterate_mandelbrot(0.0, 0.0, 100);
+            assert!(intensity_mandelbrot.count > 0.0); // Adjust assertion based on expected behavior
+        }
+
+        // Your tests will go here
+    }
+}
