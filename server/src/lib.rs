@@ -1,8 +1,11 @@
 use std::error::Error;
-use std::io::Read;
+use std::io::{Read, Write};
 use std::net::{SocketAddr, TcpStream};
 
-use shared::networking::{Fragment, Request};
+use complex::Complex;
+use shared::fractal::{FractalDescriptor, Julia};
+use shared::image::{Point, Range, Resolution};
+use shared::networking::{Fragment, Request, Task, U8Data};
 
 pub fn validate_server_argument(
     arguments: Vec<String>,
@@ -37,6 +40,34 @@ pub fn receive_request(
     match fragment {
         Fragment::FragmentRequest(request) => Ok(request),
         _ => Err("Error: unexpected fragment".into()),
+    }
+}
+
+pub fn send_task(
+    stream: &mut TcpStream,
+) -> Result<(), Box<dyn Error>> {
+    let task = create_fake_task();
+    let fragment_task = Fragment::FragmentTask(task);
+    let json_task = serde_json::to_string(&fragment_task)?;
+    let json_task_size = json_task.len() as u32;
+    let total_message_size = 4 + 4 + json_task_size;
+    stream.write(&total_message_size.to_be_bytes())?;
+    stream.write(&json_task_size.to_be_bytes())?;
+    stream.write(json_task.as_bytes())?;
+    Ok(())
+}
+
+fn create_fake_task() -> Task {
+    let julia = Julia { c: Complex { re: -0.8, im: 0.156 }, divergence_threshold_square: 4.0 };
+    Task {
+        id: U8Data { offset: 0, count: 0 },
+        fractal: FractalDescriptor::Julia(julia),
+        max_iteration: 1000,
+        resolution: Resolution { nx: 1920, ny: 1080 },
+        range: Range {
+            min: Point { x: -2.5, y: -1.0 },
+            max: Point { x: 1.0, y: 1.0 },
+        },
     }
 }
 

@@ -1,7 +1,7 @@
 use std::env::args;
 use std::net::TcpListener;
 
-use server::{receive_request, validate_server_argument};
+use server::{receive_request, send_task, validate_server_argument};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Hola, soy el server.");
@@ -18,6 +18,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let fragment = receive_request(&mut stream)?;
 
         println!("Received fragment: {fragment:?}");
+
+        send_task(&mut stream)?;
 
         break;
     }
