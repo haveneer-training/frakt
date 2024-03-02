@@ -45,9 +45,9 @@ pub fn send_task(stream: &mut TcpStream) -> Result<(), Box<dyn Error>> {
     let json_task = serde_json::to_string(&fragment_task)?;
     let json_task_size = json_task.len() as u32;
     let total_message_size = 4 + 4 + json_task_size;
-    stream.write(&total_message_size.to_be_bytes())?;
-    stream.write(&json_task_size.to_be_bytes())?;
-    stream.write(json_task.as_bytes())?;
+    stream.write_all(&total_message_size.to_be_bytes())?;
+    stream.write_all(&json_task_size.to_be_bytes())?;
+    stream.write_all(json_task.as_bytes())?;
     Ok(())
 }
 

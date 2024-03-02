@@ -85,7 +85,7 @@ pub mod networking {
         buffer.write_all(&json_message_size.to_be_bytes())?;
         buffer.write_all(&json_message_size.to_be_bytes())?;
         buffer.write_all(fragment_request_bytes)?;
-        stream.write(&buffer)?;
+        stream.write_all(buffer)?;
         Ok(())
     }
 
@@ -160,7 +160,7 @@ pub mod networking {
         let number_of_pixels = task.resolution.nx as u32 * task.resolution.ny as u32;
         let mut pixel_data = Vec::with_capacity(number_of_pixels as usize * (size_of::<f64>() * 2));
         for pixel_number in 0..number_of_pixels {
-            let pixel_intensity = get_pixel_intensity(&task, pixel_number);
+            let pixel_intensity = get_pixel_intensity(task, pixel_number);
             pixel_data.write_all(&pixel_intensity.zn.to_be_bytes())?;
             pixel_data.write_all(&pixel_intensity.count.to_be_bytes())?;
         }

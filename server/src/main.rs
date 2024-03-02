@@ -11,7 +11,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let listener = TcpListener::bind(server_address)?;
 
-    for stream in listener.incoming() {
+    if let Some(stream) = listener.incoming().next() {
         let mut stream = stream?;
         println!("Incoming connection {stream:?}");
 
@@ -20,8 +20,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("Received fragment: {fragment:?}");
 
         send_task(&mut stream)?;
-
-        break;
     }
 
     println!("\n\nEnd of server");
