@@ -4,11 +4,12 @@ pub mod networking {
     use std::mem::size_of;
     use std::net::TcpStream;
 
-    use complex::Complex;
     use serde::{Deserialize, Serialize};
     use serde_json::json;
 
-    use crate::fractal::{FractalDescriptor, Julia};
+    use complex::Complex;
+
+    use crate::fractal::{FractalDescriptor, IteratedSinZ, Julia};
     use crate::image::{PixelData, PixelIntensity, Range, Resolution};
 
     pub const ID_SIZE: usize = 16;
@@ -178,6 +179,12 @@ pub mod networking {
             FractalDescriptor::Mandelbrot(..) => {
                 iterate_mandelbrot(real_part, imaginary_part, task.max_iteration)
             }
+            FractalDescriptor::IteratedSinZ(ref iterated_sin_z) => iterate_iterated_sin_z(
+                iterated_sin_z,
+                real_part,
+                imaginary_part,
+                task.max_iteration,
+            ),
         }
     }
 
@@ -251,6 +258,30 @@ pub mod networking {
         };
         iterate_fractal(z, c, 4.0, max_iteration)
     }
+
+    fn iterate_iterated_sin_z(
+        iterated_sin_z: &IteratedSinZ,
+        real_part: f64,
+        imaginary_part: f64,
+        max_iteration: u32,
+    ) -> PixelIntensity {
+        let mut z = Complex {
+            re: real_part,
+            im: imaginary_part,
+        };
+        let c = iterated_sin_z.c;
+        let mut iter = 0;
+
+        while z.norm_sqr() <= 50.0 && iter < max_iteration {
+            z = z.sin() * c;
+            iter += 1;
+        }
+
+        PixelIntensity {
+            zn: z.norm() as f32,
+            count: iter as f32 / max_iteration as f32,
+        }
+    }
 }
 
 pub mod fractal {
@@ -262,6 +293,7 @@ pub mod fractal {
     pub enum FractalDescriptor {
         Julia(Julia),
         Mandelbrot(Option<Mandelbrot>),
+        IteratedSinZ(IteratedSinZ),
     }
 
     #[derive(Debug, Serialize, Deserialize)]
@@ -272,6 +304,11 @@ pub mod fractal {
 
     #[derive(Debug, Serialize, Deserialize)]
     pub struct Mandelbrot {}
+
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct IteratedSinZ {
+        pub c: Complex,
+    }
 }
 
 pub mod image {
